@@ -1,9 +1,11 @@
 Package: myrwaR
 Type: Package
-Title: Tools for analyzing hydrologic data for the Mystic River Watershed Association
+Title: Tools for analyzing hydrologic data for the Mystic River Watershed
+    Association
 Version: 0.1
 Date: 2014-05-13
 Author: Jeff Walker <jeff@walkerjeff.com>
 Maintainer: Jeff Walker <jeff@walkerjeff.com>
-Description: Provides functions to load, summarise, qaqc, and visualize MyRWA data
+Description: Provides functions to load, summarise, qaqc, and visualize MyRWA
+    data
 License: MIT
