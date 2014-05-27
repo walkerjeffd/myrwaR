@@ -8,4 +8,8 @@ Author: Jeff Walker <jeff@walkerjeff.com>
 Maintainer: Jeff Walker <jeff@walkerjeff.com>
 Description: Provides functions to load, summarise, qaqc, and visualize MyRWA
     data
+Imports:
+    lubridate,
+    RODBC,
+    stringr
 License: MIT
