@@ -11,5 +11,6 @@ Description: Provides functions to load, summarise, qaqc, and visualize MyRWA
 Imports:
     lubridate,
     RODBC,
-    stringr
+    stringr,
+    rmarkdown
 License: MIT
