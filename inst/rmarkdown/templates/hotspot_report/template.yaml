@@ -1,0 +1,5 @@
+name: MyRWA Hotspot Report (PDF)
+description: >
+  Template for hotspot report. This template is used to generate periodic
+  Hotspot sampling reports.
+create_dir: true
