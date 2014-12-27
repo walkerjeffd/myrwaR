@@ -12,5 +12,6 @@ Imports:
     lubridate,
     RODBC,
     stringr,
-    rmarkdown
+    rmarkdown,
+    dplyr
 License: MIT

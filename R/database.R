@@ -2,13 +2,13 @@
 #' 
 #' Opens a connection to an access database
 #' 
-#' @param db_path Path and filename to database
+#' @param path Path to database
 #' @export
 #' @return Connection handle
 #' @examples
 #' ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
-db_connect <- function(db_path) {
-  ch <- RODBC::odbcConnectAccess2007(db_path)
+db_connect <- function(path) {
+  ch <- RODBC::odbcConnectAccess2007(path)
   ch
 }
 
@@ -27,7 +27,13 @@ db_results <- function(ch) {
   
   df <- merge(tblResult, tblVisit, by.x='VisitID', by.y='ID', all.x=T)
   
-  df$Datetime <- lubridate::with_tz(df$Datetime, tz='EST')
+  df[, 'Datetime'] <- lubridate::with_tz(df[, 'Datetime'], tz='EST')
+  df[, 'CharacteristicID'] <- factor(df[, 'CharacteristicID'])
+  df[, 'LocationID'] <- factor(df[, 'LocationID'])
+  df[, 'Units'] <- factor(df[, 'Units'])
+  df[, 'ProjectID'] <- factor(df[, 'ProjectID'])
+  
+  df <- droplevels(df)
   
   df
 }
@@ -94,3 +100,34 @@ db_locations <- function(ch) {
   
   df
 }
+
+#' Load water quality data
+#' 
+#' Loads water quality data with associated tables
+#' 
+#' @param path Path to MyRWA Access Database
+#' @param projects ProjectID(s) to keep in dataset (default=NULL for all projects)
+#' @param sample_types SampleTypeID(s) to keep in dataset (default='S' to exclude blanks and duplicates, if NULL retains all sample types)
+#' @param exclude_flags If TRUE, excludes all samples with any flag, otherwise returns all samples
+#' @export
+load_wq <- function(path, projects=NULL, sample_types='S', exclude_flags=FALSE) {
+  ch <- db_connect(path)
+  
+  wq <- db_results(ch)
+  locations <- db_table(ch, 'Location')
+  wq <- merge(wq, locations, by.x='LocationID', by.y='ID')
+  
+  if (!is.null(projects)) {
+    wq <- subset(wq, ProjectID %in% projects)
+  }
+  
+  if (!is.null(sample_types)) {
+    wq <- subset(wq, SampleTypeID %in% sample_types)
+  }
+  
+  if (exclude_flags) {
+    wq <- subset(wq, is.na(FlagID) | FlagID %in% c("", " "))
+  }
+  
+  wq
+} 

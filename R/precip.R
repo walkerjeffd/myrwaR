@@ -54,6 +54,51 @@ load_precip_from_xls <- function(path, as.type=c('dataframe','zoo')) {
 #' pcp$Precip.48 <- antecedent_precip(pcp, period=48, precip.name="Precip", datetime.name="Datetime")
 antecedent_precip <- function(x, period=48, precip.name="Precip", datetime.name="Datetime") {
   check_hourly(x[[datetime.name]])
-  apcp <- filter(x[,precip.name], rep(1, period), side = 1)
+  apcp <- stats::filter(x[, precip.name], rep(1, period), side = 1)
   apcp
+}
+
+
+#' Adds antecedent precipitation columns
+#' 
+#' Appends antecedent precipitation columns for multiple periods to an existing wq data frame
+#' 
+#' @param wq water quality data frame
+#' @param precip precipitation date frame (hourly timestep)
+#' @param period antecedent period in number of hours
+#' @param precip.threshold threshold value for assigning wet/dry to Weather column
+#' @param precip.name name of precipitation column
+#' @export
+#' @return numeric vector of antecedent precipitation
+append_weather <- function(wq, precip, period=48, precip.threshold=0.25, precip.name="Precip") {  
+  anteprecip.name <- paste('Precip', period, sep='.')
+  
+  if (!(anteprecip.name %in% names(precip))) {
+    cat('Computing antecedent precip...')
+    precip[, anteprecip.name] <- antecedent_precip(precip, period=period, precip.name=precip.name)
+    cat('done\n')
+  }
+  
+  if (!('DateHour' %in% names(wq))) {
+    cat('Computing DateHour column in wq dataframe...')
+    wq$DateHour <- lubridate::floor_date(wq$Datetime,"hour") 
+    cat('done\n')
+  }
+  
+  if (anteprecip.name %in% names(wq)) {
+    cat(paste0('Removing existing ', anteprecip.name, ' from wq dataframe...'))
+    wq <- wq[, -which(names(wq)==anteprecip.name)]
+    cat('done\n')
+  }
+  
+  # merge wq and precip
+  cat('Merging wq and precip...')
+  x <- merge(wq, precip[, c('Datetime', anteprecip.name)], 
+             by.x='DateHour', by.y='Datetime', all.x=T)
+  cat('done\n')
+  
+  # compute weather
+  x$Weather <- factor(ifelse(x[, anteprecip.name] >= precip.threshold, "Wet", "Dry"))
+  
+  x
 }

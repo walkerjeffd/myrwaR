@@ -1,10 +1,12 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
 \usepackage{fullpage}
-% $if(fontfamily)$
-% \usepackage{$fontfamily$}
-% $else$
-% \usepackage{lmodern}
-% $endif$
+$if(fontfamily)$
+\usepackage{$fontfamily$}
+$else$
+\usepackage{lmodern}
+$endif$
+\usepackage{pdflscape}
+\usepackage{wrapfig}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 $if(linestretch)$
@@ -185,31 +187,12 @@ $endfor$
 
 \begin{document}
 
-% \maketitle
-
-$if(abstract)$
-\begin{abstract}
-$abstract$
-\end{abstract}
-$endif$
-
 $for(include-before)$
 $include-before$
 
 $endfor$
-$if(toc)$
-{
-\hypersetup{linkcolor=black}
-\setcounter{tocdepth}{$toc-depth$}
-\tableofcontents
-}
-$endif$
-$if(lot)$
-\listoftables
-$endif$
-$if(lof)$
-\listoffigures
-$endif$
+
+\includegraphics[width=0.25\textwidth, keepaspectratio]{myrwa_logo}
 
 {\Large $title$}
 
