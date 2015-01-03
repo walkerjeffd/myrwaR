@@ -93,6 +93,7 @@ $if(graphics)$
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\setlength{\@fptop}{5pt}
 \makeatother
 % Scale images if necessary, so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
@@ -180,10 +181,12 @@ $if(subtitle)$
 \subtitle{$subtitle$}
 $endif$
 
+% change figure/table captions
+\usepackage[font={large,bf},labelfont={Large},skip=12pt,justification=raggedright,singlelinecheck=false]{caption}
+
 $for(header-includes)$
 $header-includes$
 $endfor$
-
 
 \begin{document}
 
