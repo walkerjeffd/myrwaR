@@ -1,21 +1,59 @@
 ---
-title: "Bacterial Assessment: <LOCATIONS>"
-report_number: "1410-001"
+title: "Bacterial Assessment: <Waterbody Names>"
+report_number: "XXXX-XXX"
 sampling_date: "August 21, 2014"
-monitors: "Andrew Hrycyna, Elissa Ladwig"
+monitors: "Andrew Hrycyna"
+lab: "EPA Region 1 - Chelmsford"
 report_date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: myrwaR::hotspot_report
 graphics: TRUE
 ---
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r metadata, echo=FALSE}
+library(lubridate)
+
+# ENTER THIS INFORMATION MANUALLY (for running code chunks interactively)
+# sample_date <- ymd("2014-08-21", tz="EST") # note, must be in EST timezone
+# monitors <- "Andrew Hrycyna"
+# lab <- "EPA Region 1 - Chelmsford"
+
+# OR EXTRACT FROM METADATA ABOVE AUTOMATICALLY (for compiling document)
+sample_date <- mdy(rmarkdown::metadata$sample_date, tz="EST")
+monitors <- rmarkdown::metadata$monitors
+lab <- rmarkdown::metadata$lab
+
+# rename specific LocationIDs to match MyRWA and Municipalities
+# example: replaces "Blanchard Road" with "CAMD03OF0000"
+# rename_locations <- c("Blanchard Road"="CAMD03OF0000")
+rename_locations <- c()
+```
+
+```{r load libraries, echo=FALSE, warning=FALSE, message=FALSE}
+library(myrwaR)
+library(RODBC)
+library(knitr)
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(dplyr)
+library(lubridate)
+library(gridExtra)
+library(xtable)
+library(ggmap)
+library(stringr)
+library(tidyr)
+library(dataRetrieval)
+
+theme_set(theme_bw())
+
+options(stringsAsFactors=FALSE)
+options("xtable.comment"=FALSE)
 knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 ```
 
-
 # Executive Summary
 
-The Mystic River Watershed Association conducted dry-weather monitoring in the municipalities of Somerville and Melrose on August 21, 2014. The main goal of the monitoring event was to evaluate conditions at stormwater outfalls and other sites that have not been sampled extensively in the past few years by MyRWA and other sites of interest. Water quality samples were taken in accordance with the MyRWA MA-DEP approved QAPP along with accurate notes.
+The Mystic River Watershed Association conducted dry-weather monitoring in the municipalities of Somerville and Melrose on `r rmarkdown::metadata$sampling_date`. The main goal of the monitoring event was to evaluate conditions at stormwater outfalls and other sites that have not been sampled extensively in the past few years by MyRWA and other sites of interest. Water quality samples were taken in accordance with the MyRWA MA-DEP approved QAPP along with accurate notes.
 
 Testing revealed that six of ten tested sites had E. coli values that exceeded MassDEP Water Quality Standards for Class B water bodies for swimming. The highest E. coli values were found at Ell Pond, at outfall MEL003, where E. coli levels were 6910 MPN E. coli / 100 ml, a value which exceeds the standard for boating as well.
 
@@ -36,7 +74,7 @@ This report was prepared by:
 
 **Lab Analysis**: EPA Region 1 Laboratory, Chelmsford MA
 
-This report describes monitoring data collected by MyRWA under its MassDEP- approved Quality Assurance Project Plan.
+This report describes monitoring data collected by MyRWA under its MassDEP-approved Quality Assurance Project Plan.
 
 This project was undertaken in connection with settlement of an enforcement action, United States v. Sterling Suffolk Racecourse LLC, taken on behalf of the U.S. Environmental Protection Agency under the Clean Water Act.
 
@@ -44,7 +82,7 @@ EPA Region 1 Laboratory in Chelmsford, MA conducted all laboratory sample analys
 
 This report should be cited in the literature in the following manner:
 
-`r rmarkdown::metadata$title`--Technical Report `r rmarkdown::metadata$report_number`. Mystic River Watershed Association, Arlington, MA.
+> `r rmarkdown::metadata$title`--Technical Report `r rmarkdown::metadata$report_number`. Mystic River Watershed Association, Arlington, MA.
 
 # Water Quality Results
 
@@ -52,37 +90,493 @@ On August 21, 2014. MyRWA conducted a dry-weather sampling event at Alewife Broo
 
 Elevated E. coli levels adversely impacting water quality were observed at six of 10 sites surveyed, where measured values exceeded MassDEP Water Quality Standards for swimming safety in Class B water bodies. In addition, at one site near Ell Pond, E. coli levels exceeded the standard for safe boating as well.
 
-# Conclusions and Action items:
+# Conclusions and Action Items
 
 Results suggest that two sites should be prioritized, and others followed up on:
 
 1. The two sites near Ell Pond, MEL003 and MEL002 showed the highest E. coli values, exceeding or approaching the standard for boating safety. Both show elevated levels over the past several years in dry weather, indicating persistent problems. Additional testing should be done to determine the cause of this contamination.
 2. Prioritize other outfalls whose values exceeded water quality standard, as per table and maps. Note that two stream samples from Malden Canal showed moderately high levels of bacteria.
 
-# Example Code
+\clearpage
 
-## Example Table
+```{r load data, results='hide'}
+# load all hotspot and municipal data from database
+wq <- myrwaR::load_wq(path='H:/Dropbox/Work/mystic/_share_db/MysticDB_20141226.accdb',
+                      projects=c('HOTSPOT', 'MUNI'),
+                      sample_types=NULL,
+                      exclude_flags=FALSE) %>%
+  mutate(Qualifier=ifelse(is.na(Qualifier), "", Qualifier)) %>%
+  filter(floor_date(Datetime, unit='day') <= sample_date)
 
-This is a latex table generated by `xtable` (but actually written in an Rmd file).
-
-```{r, results='asis'}
-library(xtable)
-options("xtable.comment"=FALSE)
-n <- 100
-x <- rnorm(n)
-y <- 2*x + rnorm(n)
-out <- lm(y ~ x)
-xt <- xtable(summary(out)$coef, floating=FALSE)
-print(xt)
+# assign flag to samples in current date
+wq$Current <- floor_date(wq$Datetime, unit='day')==sample_date       
+stopifnot(sum(wq$Current)>0) # check there is at least one sample for sample_date
 ```
 
-
-## Example Map
-
-```{r map, fig.width=4, fig.height=4}
-library(ggmap)
-library(ggplot2)
-map <- get_map('boston, ma', maptype='satellite')
-ggmap(map, extent='device')
+```{r rename-location}
+wq$LocationID <- plyr::revalue(wq$LocationID, rename_locations)
 ```
 
+```{r logan-precip, results='hide'}
+# load logan airport precipitation data from xlsx file
+precip <- myrwaR::load_precip_from_xls(path='H:/Dropbox/Work/mystic/_share_db/Processed/Precip/LoganPrecip.xlsx', as.type='dataframe')
+```
+
+```{r usgs-precip, results='hide'}
+# append hourly precip data from USGS (Muddy River) gage
+# if sample date is after end of logan dataset
+if (sample_date > max(precip$Datetime)) {
+  startDate <- format(with_tz(max(precip$Datetime)+hours(1), tz="America/New_York"), 
+                      "%Y-%m-%dT%H:%M:%S")
+  endDate <- format(sample_date+days(1), "%Y-%m-%d")
+  
+  precip_usgs <- readNWISuv(siteNumber="01104683",  # muddy river
+                            parameterCd="00045",    # precip 
+                            startDate=startDate, 
+                            endDate=endDate, 
+                            tz="America/New_York") %>%
+    select(Datetime=dateTime, Precip=X_00045_00011) %>%
+    mutate(Datetime=with_tz(Datetime, tzone="EST")) %>%
+    mutate(Datetime=floor_date(Datetime, unit='hour')) %>%
+    group_by(Datetime) %>%
+    summarise(Precip=sum(Precip))
+  precip <- rbind(precip, precip_usgs)
+}
+```
+
+```{r weather-clas, results='hide'}
+# add weather classification (dry/wet)
+wq <- myrwaR::append_weather(wq=wq, precip=precip, 
+                             period=48, precip.threshold=0.25, 
+                             precip.name="Precip")
+```
+
+```{r sample-weather}
+# get the weather class and 48 hour precip for sample date from logan precip
+sample_weather <- unique(as.character(wq[which(wq$Current), 'Weather']))
+
+# if the individual samples have different 48-hour precip, use max
+sample_precip_48 <- max(unique(wq[which(wq$Current), 'Precip.48']))
+
+# if some samples are Dry and others Wet, call the the overall event a Wet event
+if (length(sample_weather)>1 && 'Wet' %in% sample_weather) {
+  sample_weather <- 'Wet'
+}
+
+stopifnot(length(sample_weather)==1)
+stopifnot(!is.na(sample_weather))
+stopifnot(length(sample_precip_48)==1)
+stopifnot(!is.na(sample_precip_48))
+```
+
+```{r determine-bacteria}
+# find type of bacteria measurement
+bacteria_type <- intersect(unique(subset(wq, Current)$CharacteristicID), c("ECOLI", "ENT"))
+
+# check that samples only include one of ECOLI or ENT, not both or neither
+stopifnot(length(bacteria_type)==1) 
+```
+
+```{r classify-bacteria}
+# data frame containing standards and labels for bacteria
+bac_standards <- data.frame(CharacteristicID=c('ECOLI', 'ENT'),
+                            BoatingStandard=c(1260, 350),
+                            SwimmingStandard=c(235, 104),
+                            BacteriaLabel=c('E. coli', 'Enterococcus'))
+
+# add BoatingStandard, SwimmingStandard and BacteriaLabel columns to wq data frame
+# and assign exceedence levels (low/med/high)
+wq <- left_join(wq, bac_standards) %>%
+  mutate(ExceedanceLevel=ifelse(ResultValue>=BoatingStandard,
+                                'high',
+                                ifelse(ResultValue>=SwimmingStandard,
+                                       'med', 'low')),
+         ExceedanceLevel=ordered(ExceedanceLevel, levels=c('low', 'med', 'high')))
+```
+
+```{r create-locations}
+# create table of locations for current sample date
+locations <- filter(wq, Current, ProjectID=='HOTSPOT') %>%
+  select(LocationID, MunicipalityID, Latitude, Longitude, WaterBodyID, LocationDescription) %>%
+  unique %>%
+  arrange(LocationID)
+# check that LocationID is not duplicated in locations table
+stopifnot(sum(duplicated(locations$LocationID))==0) 
+```
+
+\begin{table}[h]
+\caption{Summary of Hotspot sampling event on `r format(sample_date, '%B %d, %Y')`}
+
+```{r event-table, results='asis'}
+# Event Summary Table
+sample_weather_text <- paste0(sample_weather, " (", format(sample_precip_48, nsmall=1), 
+                              "\" 48 hr prior to sampling)")
+
+tblEvent <- data.frame(Name=c("Municipalities", 
+                              "Waterbodies",
+                              "Hot Spot Sample Date", 
+                              "Precipitation Record", 
+                              "Monitor(s)","Lab"),
+                       Value=c(paste(unique(locations$MunicipalityID), collapse=', '), 
+                               paste(unique(locations$WaterBodyID), collapse=', '), 
+                               format(sample_date, "%B %d, %Y"), 
+                               sample_weather_text,
+                               monitors,
+                               lab))
+
+xtblEvent <- xtable(tblEvent, align=c("rrl"))
+print(xtblEvent, floating=FALSE, include.colnames=FALSE, include.rownames=FALSE,
+      hline.after=NULL)
+```
+
+\end{table}
+
+\begin{figure}[h]
+\caption{Bacteria Levels Measured on `r format(sample_date, '%B %d, %Y')`} 
+
+```{r plot-bar, fig.height=5, fig.width=8}
+barplot <- filter(wq, Current, CharacteristicID==bacteria_type, ProjectID=="HOTSPOT") %>%
+  ggplot() +
+  geom_bar(aes(x=LocationID, y=ResultValue, fill=ExceedanceLevel, width=0.65), stat="identity") +
+  geom_hline(aes(yintercept=BoatingStandard), 
+             data=filter(bac_standards, CharacteristicID==bacteria_type),
+             linetype=1) +
+  geom_hline(aes(yintercept=SwimmingStandard), 
+             data=filter(bac_standards, CharacteristicID==bacteria_type),
+             linetype=2) +
+  geom_text(aes(x=1, y=BoatingStandard,
+                label=paste0('Boating Standard: ', BoatingStandard, ' #/100ml')), 
+            data=filter(bac_standards, CharacteristicID==bacteria_type), 
+            hjust=0, vjust=1.1, alpha=0.7, size=3) +
+  geom_text(aes(x=1, y=SwimmingStandard,
+                label=paste0('Swimming Standard: ', SwimmingStandard, ' #/100ml')), 
+            data=filter(bac_standards, CharacteristicID==bacteria_type), 
+            hjust=0, vjust=1.1, alpha=0.7, size=3) +
+  geom_text(aes(label=paste(Qualifier, str_trim(prettyNum(ResultValue, big.mark=",", scientific=F))),
+                x=LocationID, y=ResultValue),
+            position=position_dodge(width = 0.8), 
+            vjust=-.6, size =3.5) +
+  labs(y=paste0(filter(bac_standards, CharacteristicID==bacteria_type)$BacteriaLabel, ' #/100ml'),
+       x='Site ID') +
+  scale_y_log10(breaks=10^seq(0, 7), labels=comma) +
+  scale_fill_manual(values=c('high'="#DA635D", 'med'="#FF9933", 'low'="#6699CC"), drop=FALSE) +
+  theme(axis.text.x=element_text(angle=45, hjust=1, vjust=NULL),
+        plot.title=element_text(size = rel(1.2), hjust = 0)) +
+  guides(fill=FALSE)
+
+print(barplot)
+```
+
+\end{figure}
+\clearpage
+
+\begin{figure}[h]
+\caption{Historical Bacteria Levels for Outfalls Sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+{Note: Excludes Outfalls with no known historical bacteria data.}
+\end{figure}
+
+```{r plot-historical, results='asis', fig.width=7.5, fig.height=3}
+historical <- filter(wq, CharacteristicID==bacteria_type, 
+                     LocationID %in% locations$LocationID) %>%
+  droplevels %>%
+  arrange(LocationID, Datetime) %>%
+  group_by(LocationID) %>%
+  mutate(Count=n()) %>%
+  ungroup %>%
+  filter(Count > 1)
+
+for (loc in unique(as.character(historical$LocationID))) {
+  i <- which(locations$LocationID==loc)
+  historical_location <- filter(historical, LocationID==loc) %>%
+    mutate(Datetime=as.Date(Datetime))
+  plot <- ggplot(historical_location) +
+    geom_hline(aes(yintercept=BoatingStandard), 
+             data=filter(bac_standards, CharacteristicID==bacteria_type),
+             linetype=1) +
+    geom_hline(aes(yintercept=SwimmingStandard), 
+               data=filter(bac_standards, CharacteristicID==bacteria_type),
+               linetype=2) +
+    geom_text(aes(x=min(historical_location$Datetime), y=BoatingStandard,
+                  label=paste0('Boating Standard: ', BoatingStandard, ' #/100ml')), 
+              data=filter(bac_standards, CharacteristicID==bacteria_type), 
+              hjust=0, vjust=1.1, alpha=0.7, size=3) +
+    geom_text(aes(x=min(historical_location$Datetime), y=SwimmingStandard,
+                  label=paste0('Swimming Standard: ', SwimmingStandard, ' #/100ml')), 
+              data=filter(bac_standards, CharacteristicID==bacteria_type), 
+              hjust=0, vjust=1.1, alpha=0.7, size=3) +
+    geom_point(aes(Datetime, ResultValue, color=Weather, shape=ProjectID), alpha=0.9, size=4) +
+    scale_colour_manual(values=c("Dry"="deepskyblue", "Wet"="steelblue"), drop=FALSE) + 
+    scale_shape_manual('Project', labels=c('HOTSPOT'='Hotspot', 'MUNI'='Municipal'),
+                       values=c('HOTSPOT'=16, 'MUNI'=17)) +
+    scale_y_log10(limits=c(1, 
+                    max(historical_location$ResultValue, 
+                        filter(bac_standards, CharacteristicID==bacteria_type)$BoatingStandard)*1.1),
+                  breaks=10^seq(0, 7), labels=comma) +
+    labs(y=paste0(filter(bac_standards, CharacteristicID==bacteria_type)$BacteriaLabel, 
+                  ' #/100ml'), 
+         x='Date') +
+    ggtitle(paste(locations[i, 'LocationID'], 
+                  locations[i, 'WaterBodyID'], 
+                  locations[i, 'MunicipalityID'], 
+                  sep=' - '))
+  print(plot)
+}
+```
+
+\clearpage
+
+\begin{landscape}
+
+\begin{table}[h]
+\caption{Data collected at outfalls during Hotspot sampling event on `r format(sample_date, '%B %d, %Y')`}
+
+```{r table-data, results='asis'}
+tblData <- filter(wq, Current, ProjectID=="HOTSPOT") %>%
+  select(VisitID, LocationID, CharacteristicID, 
+         Datetime, Qualifier, ResultValue, WaterBodyID, Comment) %>%
+  arrange(VisitID, LocationID, Datetime, WaterBodyID, Comment) %>%
+  mutate(ResultValue=prettyNum(ResultValue, digits=3, big.mark=",", scientific=F),
+         ResultValue=paste(Qualifier, ResultValue)) %>%
+  select(-Qualifier)
+
+missing_characteristics <- setdiff(c(bacteria_type, "TEMP_WATER", "DO", "SPCOND", "SURF_ANIONIC", "NH3"), unique(tblData$CharacteristicID))
+
+tblData <- spread(tblData, CharacteristicID, ResultValue) %>%
+  arrange(LocationID) %>%
+  mutate(Date=format(Datetime, "%Y-%m-%d"),
+         Time=format(Datetime, "%H:%M")) %>%
+  select(-Datetime)
+
+if (length(missing_characteristics) > 0) {
+  for (char in missing_characteristics) {
+    tblData[, char] <- NA
+  }
+}
+
+tblData <- select_(tblData, "LocationID", 
+                   bacteria_type, "TEMP_WATER", "DO", "SPCOND", "SURF_ANIONIC", "NH3",
+                   "Time", "WaterBodyID", "Comment")
+
+
+xtblData <- xtable(tblData, caption = "",
+                   align=c("l","l",rep("p{0.42in}", times=6),
+                           "l","l","p{2in}"),
+                   digits = c(0,0,0,
+                              1,1,0,
+                              2,2,0,
+                              0,0),
+                   include.rownames=FALSE, include.colnames = T )
+
+bac_label <- filter(bac_standards, CharacteristicID==bacteria_type)$BacteriaLabel
+if (bac_label=='Enterococcus') bac_label <- 'Entero.'
+
+colnames(xtblData) <- c("Site ID", paste0(bac_label, ' (#/100ml)'),
+                        "Temp. (degC)", "DO (mg/l)", "Sp. Cond. (uS/cm)", 
+                        "Surfact. (ppt)", "NH3 (mg/l)", 
+                        "Time", "Water Body", "Comment")
+print(xtblData, include.rownames=FALSE, floating=FALSE,
+      hline.after=c(0), caption.placement="top", NA.string='')
+```
+
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+
+\begin{table}[h]
+\caption{Locations Sampled during Hotspot sampling event on `r format(sample_date, '%B %d, %Y')`}
+
+```{r table-locations, results='asis'}
+xtblLocations <- select(locations, 
+       LocationID, MunicipalityID, WaterBodyID, Latitude, Longitude, LocationDescription) %>%
+  arrange(LocationID) %>%
+  xtable(caption="Sampling Locations",
+         align=c("l","l","l","l",
+                 "r","r","p{3.5in}"),
+         digits = c(0, 0, 0, 0, 4, 4, 0),
+         include.rownames=FALSE, include.colnames=T)
+# rename columns
+colnames(xtblLocations) <- plyr::revalue(colnames(xtblLocations),
+                                         c("LocationID"="Site ID",
+                                           "MunicipalityID"="Municipality",
+                                           "WaterBodyID"="Waterbody",
+                                           "Latitude"="Latitude",
+                                           "Longitude"="Longitude",
+                                           "LocationDescription"="Location Description"))
+
+print(xtblLocations, include.rownames=FALSE, floating=FALSE)
+```
+
+\end{table}
+\end{landscape}
+\clearpage
+
+\begin{figure}[h]
+\caption{Map of all outfall locations sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+
+```{r map, fig.width=7, fig.height=7}
+map <- get_map(location=c(mean(range(locations$Longitude)), 
+                          mean(range(locations$Latitude))),
+               zoom=12, maptype="hybrid")
+plot <- ggmap(map, extent='device', darken=c(0.2, 'black')) +
+  geom_point(aes(x=Longitude, y=Latitude), data=locations,
+             color='orange', size=2) +
+  geom_text(aes(x=Longitude, y=Latitude, label=LocationID), data=locations,
+            hjust=-0.2, vjust=0.5, color='orange', size=3, fontface='bold')
+print(plot)
+```
+
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+\caption{Individual maps of outfall locations sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+\end{figure}
+
+```{r map-location, fig.width=4, fig.height=4, fig.align='center'}
+for (i in 1:nrow(locations)) {
+  locations_current <- mutate(locations, Current=LocationID==locations[i, 'LocationID'])
+  Sys.sleep(2)
+  map <- get_map(location=c(locations[i, 'Longitude'], locations[i, 'Latitude']),
+                 zoom=18, maptype="hybrid")
+  plot <- ggmap(map, extent='device', darken=c(0.2, 'black')) +
+    geom_point(aes(x=Longitude, y=Latitude, color=Current, alpha=Current), 
+               data=locations_current, size=5) +
+    geom_text(aes(x=Longitude, y=Latitude, label=LocationID, color=Current, alpha=Current), 
+              data=locations_current,
+              hjust=-0.2, vjust=0.5, size=4, fontface='bold') +
+    scale_color_manual('', values=c('TRUE'='orange', 'FALSE'='red'), guide=FALSE) +
+    scale_alpha_manual('', values=c('TRUE'=1, 'FALSE'=0.7), guide=FALSE) +
+    ggtitle(paste(locations[i, 'LocationID'], 
+                  locations[i, 'WaterBodyID'], 
+                  locations[i, 'MunicipalityID'], 
+                  sep=' - '))
+  print(plot)
+}
+```
+
+\clearpage
+
+\begin{figure}[h]
+\caption{Outfalls with 5 highest median bacteria levels for each waterbody sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+{Note: Includes only the 5 outfalls with the highest median bacteria levels in each waterbody. Excludes outfalls with fewer than 3 samples.}
+\end{figure}
+
+```{r map-waterbody, fig.width=6, fig.height=4.5, fig.align='center'}
+# adjust zoom levels to ensure all locations are included on map
+waterbody_zoom <- c("Alewife Brook"=14, 
+                    "Ell Pond"=16, 
+                    "Malden Canal"=14,
+                    "Horn Pond"=15, 
+                    "Horn Pond Brook"=16, 
+                    "Shaker Glen Brook"=15,
+                    "Sweetwater Brook"=14,
+                    "Wellington Brook"=14)
+
+for (waterbody in sort(unique(locations$WaterBodyID))) {
+  # check that zoom level is defined above for this waterbody
+  stopifnot(waterbody %in% names(waterbody_zoom))
+  wq_waterbody <- filter(wq, WaterBodyID==waterbody, ProjectID=="HOTSPOT",
+                         CharacteristicID==bacteria_type) %>%
+    group_by(LocationID, Latitude, Longitude) %>%
+    summarise(n=n(),
+              min=min(ResultValue),
+              med=median(ResultValue),
+              max=max(ResultValue)) %>%
+    ungroup %>%
+    mutate(Current=(LocationID %in% locations$LocationID)) %>%
+    mutate(medLevel=cut(med, 
+                        breaks=c(0, 100, 500, 1000, 5000, 10000, 1e8),
+                        labels=c('< 100', '100-500', '500-1,000', '1,000-5,000', '5,000-10,000', '>10,000'))) %>%
+    filter(n>=3) %>% # limit outfalls to those with at least 3 samples
+    arrange(desc(med)) %>% # sort by median value
+    head(5) # limit to five outfalls with highest medians
+  
+  map <- get_map(location=c(mean(range(wq_waterbody$Longitude)),
+                            mean(range(wq_waterbody$Latitude))),
+                 maptype='hybrid',
+                 zoom=waterbody_zoom[[waterbody]])
+  
+  plot <- ggmap(map, extent='device', darken=c(0.3, 'black')) +
+    geom_point(aes(Longitude, Latitude, size=medLevel, color=LocationID), 
+               data=wq_waterbody, alpha=0.9) +
+    geom_point(aes(Longitude, Latitude, size=medLevel), 
+               data=wq_waterbody, shape=1, color='white', alpha=0.5) +
+    scale_size_discrete(paste0('Median ', bac_label, '\n#/100ml'),
+                        range=c(2, 12), drop=FALSE) +
+    scale_color_brewer('Site ID', type='qual', palette=2) +
+    guides(colour = guide_legend(override.aes = list(size=4))) +
+    ggtitle(bquote(bold(.(waterbody))))
+  print(plot)
+}
+```
+
+\clearpage
+
+\begin{figure}[ht]
+\caption{Distribution of historical bacteria data at outfalls sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+
+{Note: Does not include historical data collected by municipalities.}
+
+```{r box-outfalls, fig.height=5, fig.width=8}
+filter(wq, CharacteristicID==bacteria_type, LocationID %in% locations$LocationID) %>%
+  filter(ProjectID=="HOTSPOT") %>%
+  ggplot(aes(LocationID, ResultValue)) +
+  geom_boxplot(fill='grey90') +
+  geom_hline(aes(yintercept=BoatingStandard), 
+             data=filter(bac_standards, CharacteristicID==bacteria_type),
+             linetype=1) +
+  geom_hline(aes(yintercept=SwimmingStandard), 
+             data=filter(bac_standards, CharacteristicID==bacteria_type),
+             linetype=2) +
+  geom_text(aes(x=1, y=BoatingStandard,
+                label=paste0('Boating Standard: ', BoatingStandard, ' #/100ml')), 
+            data=filter(bac_standards, CharacteristicID==bacteria_type), 
+            hjust=0, vjust=1.1, alpha=0.7, size=3) +
+  geom_text(aes(x=1, y=SwimmingStandard,
+                label=paste0('Swimming Standard: ', SwimmingStandard, ' #/100ml')), 
+            data=filter(bac_standards, CharacteristicID==bacteria_type), 
+            hjust=0, vjust=1.1, alpha=0.7, size=3) +
+  labs(y=paste0(filter(bac_standards, CharacteristicID==bacteria_type)$BacteriaLabel, ' #/100ml'),
+       x='Site ID') +
+  scale_y_log10(breaks=10^seq(0, 7), labels=comma) +
+  theme(axis.text.x=element_text(angle=45, hjust=1, vjust=NULL))
+```
+
+\end{figure}
+
+\begin{table}[ht]
+\caption{Summary of historical data at outfalls sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
+
+{Note: Does not include historical data collected by municipalities.}
+
+\vspace{12 pt}
+
+```{r table-outfall-summary, results='asis'}
+tblOutfall <- filter(wq, CharacteristicID==bacteria_type, 
+                     LocationID %in% locations$LocationID) %>%
+  filter(ProjectID=="HOTSPOT") %>%
+  group_by(LocationID, WaterBodyID) %>%
+  summarise(N=n(),
+            Median=median(ResultValue),
+            Min=min(ResultValue),
+            Max=max(ResultValue)) %>%
+  ungroup %>%
+  mutate(Median=prettyNum(Median, digits=3, big.mark=",", scientific=F),
+         Min=prettyNum(Min, digits=3, big.mark=",", scientific=F),
+         Max=prettyNum(Max, digits=3, big.mark=",", scientific=F)) %>%
+  arrange(LocationID, WaterBodyID) %>%
+  as.data.frame
+
+
+xtblOutfall <- xtable(tblOutfall, align=c("l","l","l","r","r","r","r"),
+                      include.rownames=FALSE, include.colnames = T )
+
+colnames(xtblOutfall) <- c("Waterbody", "Site ID", "No. Samples",
+                           'Median (#/100ml)', 'Min (#/100ml)', 'Max (#/100ml)')
+print(xtblOutfall, include.rownames=FALSE, floating=FALSE,
+      hline.after=c(0), caption.placement="top", NA.string='')
+```
+
+\end{table}
