@@ -422,15 +422,36 @@ print(xtblLocations, include.rownames=FALSE, floating=FALSE)
 \begin{figure}[h]
 \caption{Map of all outfall locations sampled during Hotspot event on `r format(sample_date, '%B %d, %Y')`}
 
-```{r map, fig.width=7, fig.height=7}
-map <- get_map(location=c(mean(range(locations$Longitude)), 
-                          mean(range(locations$Latitude))),
-               zoom=12, maptype="hybrid")
+```{r map, fig.width=7, fig.height=7, results='hide'}
+center <- c(mean(range(locations$Longitude)), 
+            mean(range(locations$Latitude)))
+
+zoom <- 16
+while(TRUE) {
+  cat(paste0('Trying zoom: ', zoom, '\n'))
+  map <- get_map(location=center, zoom=zoom, maptype="hybrid")
+
+  bbox <- attr(map, 'bb')
+  if ((min(locations$Latitude) < bbox[['ll.lat']]) | 
+      (min(locations$Longitude) < bbox[['ll.lon']]) |
+      (max(locations$Latitude) > bbox[['ur.lat']]) |
+      (max(locations$Longitude) > bbox[['ur.lon']])) {
+    zoom <- zoom - 1
+    Sys.sleep(1)
+  } else {
+    break
+  }
+  
+  stopifnot(zoom > 10)
+}
+
 plot <- ggmap(map, extent='device', darken=c(0.2, 'black')) +
   geom_point(aes(x=Longitude, y=Latitude), data=locations,
-             color='orange', size=2) +
-  geom_text(aes(x=Longitude, y=Latitude, label=LocationID), data=locations,
-            hjust=-0.2, vjust=0.5, color='orange', size=3, fontface='bold')
+             color='orange', size=5, alpha=0.9) +
+  geom_point(aes(x=Longitude, y=Latitude), data=locations,
+             shape=1, size=5, color='white')
+#   geom_text(aes(x=Longitude, y=Latitude, label=LocationID), data=locations,
+#             hjust=-0.2, vjust=0.5, color='orange', size=3, fontface='bold')
 print(plot)
 ```
 
@@ -445,15 +466,17 @@ print(plot)
 ```{r map-location, fig.width=4, fig.height=4, fig.align='center'}
 for (i in 1:nrow(locations)) {
   locations_current <- mutate(locations, Current=LocationID==locations[i, 'LocationID'])
-  Sys.sleep(2)
+  
   map <- get_map(location=c(locations[i, 'Longitude'], locations[i, 'Latitude']),
                  zoom=18, maptype="hybrid")
   plot <- ggmap(map, extent='device', darken=c(0.2, 'black')) +
     geom_point(aes(x=Longitude, y=Latitude, color=Current, alpha=Current), 
                data=locations_current, size=5) +
-    geom_text(aes(x=Longitude, y=Latitude, label=LocationID, color=Current, alpha=Current), 
-              data=locations_current,
-              hjust=-0.2, vjust=0.5, size=4, fontface='bold') +
+    geom_point(aes(x=Longitude, y=Latitude), data=locations_current,
+               shape=1, size=5, color='white') +
+    geom_text(aes(x=Longitude, y=Latitude, label=LocationID), 
+              data=filter(locations_current, Current),
+              hjust=-0.2, vjust=0.5, size=5, fontface='bold', color='orange') +
     scale_color_manual('', values=c('TRUE'='orange', 'FALSE'='red'), guide=FALSE) +
     scale_alpha_manual('', values=c('TRUE'=1, 'FALSE'=0.7), guide=FALSE) +
     ggtitle(paste(locations[i, 'LocationID'], 
@@ -471,23 +494,8 @@ for (i in 1:nrow(locations)) {
 {Note: Includes only the 5 outfalls with the highest median bacteria levels in each waterbody. Excludes outfalls with fewer than 3 samples.}
 \end{figure}
 
-```{r map-waterbody, fig.width=6, fig.height=4.5, fig.align='center'}
-# adjust zoom levels to ensure all locations are included on map
-waterbody_zoom <- c("Alewife Brook"=14, 
-                    "Ell Pond"=16, 
-                    "Malden Canal"=14,
-                    "Horn Pond"=15, 
-                    "Horn Pond Brook"=16, 
-                    "Shaker Glen Brook"=15,
-                    "Sweetwater Brook"=14,
-                    "Wellington Brook"=14)
-stopifnot(all(unique(locations$WaterBodyID) %in% names(waterbody_zoom)))
-
+```{r map-waterbody, fig.width=6, fig.height=4, fig.align='center', results='hide'}
 for (waterbody in sort(unique(locations$WaterBodyID))) {
-  # check that zoom level is defined above for this waterbody
-  # waterbody <- "Alewife Brook"
-  
-  stopifnot(waterbody %in% names(waterbody_zoom))
   wq_waterbody <- filter(wq, WaterBodyID==waterbody, ProjectID=="HOTSPOT",
                          CharacteristicID==bacteria_type) %>%
     group_by(LocationID, Latitude, Longitude) %>%
@@ -504,10 +512,28 @@ for (waterbody in sort(unique(locations$WaterBodyID))) {
     arrange(desc(med)) %>% # sort by median value
     head(5) # limit to five outfalls with highest medians
   
-  map <- get_map(location=c(mean(range(wq_waterbody$Longitude)),
-                            mean(range(wq_waterbody$Latitude))),
-                 maptype='hybrid',
-                 zoom=waterbody_zoom[[waterbody]])
+  
+  center <- c(mean(range(wq_waterbody$Longitude)), 
+              mean(range(wq_waterbody$Latitude)))
+  
+  zoom <- 16
+  while(TRUE) {
+    cat(paste0('Trying zoom: ', zoom, '\n'))
+    map <- get_map(location=center, zoom=zoom, maptype="hybrid")
+  
+    bbox <- attr(map, 'bb')
+    if ((min(wq_waterbody$Latitude) < bbox[['ll.lat']]) | 
+        (min(wq_waterbody$Longitude) < bbox[['ll.lon']]) |
+        (max(wq_waterbody$Latitude) > bbox[['ur.lat']]) |
+        (max(wq_waterbody$Longitude) > bbox[['ur.lon']])) {
+      zoom <- zoom - 1
+      Sys.sleep(1)
+    } else {
+      break
+    }
+    
+    stopifnot(zoom > 10)
+  }
   
   plot <- ggmap(map, extent='device', darken=c(0.3, 'black')) +
     geom_point(aes(Longitude, Latitude, size=medLevel, color=LocationID), 
