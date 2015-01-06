@@ -1,7 +1,7 @@
 ---
 title: "Bacterial Assessment: <Waterbody Names>"
 report_number: "XXXX-XXX"
-sampling_date: "August 21, 2014"
+sample_date: "August 21, 2014"
 monitors: "Andrew Hrycyna"
 lab: "EPA Region 1 - Chelmsford"
 report_date: '`r format(Sys.Date(), "%B %d, %Y")`'
@@ -12,15 +12,23 @@ graphics: TRUE
 ```{r metadata, echo=FALSE}
 library(lubridate)
 
-# ENTER THIS INFORMATION MANUALLY (for running code chunks interactively)
-# sample_date <- ymd("2014-08-21", tz="EST") # note, must be in EST timezone
-# monitors <- "Andrew Hrycyna"
-# lab <- "EPA Region 1 - Chelmsford"
+# Path to water quality database and precipitation spreadsheet
+db_path <- 'H:/Dropbox/Work/mystic/_share_db/MysticDB_20141226.accdb'
+precip_path <- 'H:/Dropbox/Work/mystic/_share_db/Processed/Precip/LoganPrecip.xlsx'
+stopifnot(file.exists(db_path))
+stopifnot(file.exists(precip_path))
 
-# OR EXTRACT FROM METADATA ABOVE AUTOMATICALLY (for compiling document)
-sample_date <- mdy(rmarkdown::metadata$sample_date, tz="EST")
-monitors <- rmarkdown::metadata$monitors
-lab <- rmarkdown::metadata$lab
+# ENTER THIS INFORMATION MANUALLY (for running code chunks interactively)
+sample_date <- ymd("2014-08-21", tz="EST") # note, must be in EST timezone
+monitors <- "Andrew Hrycyna"
+lab <- "EPA Region 1 - Chelmsford"
+
+# EXTRACT FROM METADATA ABOVE AUTOMATICALLY (for compiling document)
+if (length(rmarkdown::metadata) > 0) {
+  sample_date <- mdy(rmarkdown::metadata$sample_date, tz="EST")
+  monitors <- rmarkdown::metadata$monitors
+  lab <- rmarkdown::metadata$lab  
+}
 
 # rename specific LocationIDs to match MyRWA and Municipalities
 # example: replaces "Blanchard Road" with "CAMD03OF0000"
@@ -53,7 +61,7 @@ knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 
 # Executive Summary
 
-The Mystic River Watershed Association conducted dry-weather monitoring in the municipalities of Somerville and Melrose on `r rmarkdown::metadata$sampling_date`. The main goal of the monitoring event was to evaluate conditions at stormwater outfalls and other sites that have not been sampled extensively in the past few years by MyRWA and other sites of interest. Water quality samples were taken in accordance with the MyRWA MA-DEP approved QAPP along with accurate notes.
+The Mystic River Watershed Association conducted dry-weather monitoring in the municipalities of Somerville and Melrose on `r rmarkdown::metadata$sample_date`. The main goal of the monitoring event was to evaluate conditions at stormwater outfalls and other sites that have not been sampled extensively in the past few years by MyRWA and other sites of interest. Water quality samples were taken in accordance with the MyRWA MA-DEP approved QAPP along with accurate notes.
 
 Testing revealed that six of ten tested sites had E. coli values that exceeded MassDEP Water Quality Standards for Class B water bodies for swimming. The highest E. coli values were found at Ell Pond, at outfall MEL003, where E. coli levels were 6910 MPN E. coli / 100 ml, a value which exceeds the standard for boating as well.
 
@@ -72,7 +80,7 @@ This report was prepared by:
 
 **Water Quality Monitors**: `r rmarkdown::metadata$monitors`
 
-**Lab Analysis**: EPA Region 1 Laboratory, Chelmsford MA
+**Lab Analysis**: `r rmarkdown::metadata$lab`
 
 This report describes monitoring data collected by MyRWA under its MassDEP-approved Quality Assurance Project Plan.
 
@@ -86,7 +94,7 @@ This report should be cited in the literature in the following manner:
 
 # Water Quality Results
 
-On August 21, 2014. MyRWA conducted a dry-weather sampling event at Alewife Brook, Ell Pond and the Malden Canal. During this sampling event, MyRWA collected ten water samples and tested them for bacteria levels to identify potential sources of contamination that could affect water quality in the surface water bodies.
+On `rmarkdown::metadata$sample_date`, MyRWA conducted a dry-weather sampling event at Alewife Brook, Ell Pond and the Malden Canal. During this sampling event, MyRWA collected ten water samples and tested them for bacteria levels to identify potential sources of contamination that could affect water quality in the surface water bodies.
 
 Elevated E. coli levels adversely impacting water quality were observed at six of 10 sites surveyed, where measured values exceeded MassDEP Water Quality Standards for swimming safety in Class B water bodies. In addition, at one site near Ell Pond, E. coli levels exceeded the standard for safe boating as well.
 
@@ -101,7 +109,7 @@ Results suggest that two sites should be prioritized, and others followed up on:
 
 ```{r load data, results='hide'}
 # load all hotspot and municipal data from database
-wq <- myrwaR::load_wq(path='H:/Dropbox/Work/mystic/_share_db/MysticDB_20141226.accdb',
+wq <- myrwaR::load_wq(path=db_path,
                       projects=c('HOTSPOT', 'MUNI'),
                       sample_types=NULL,
                       exclude_flags=FALSE) %>%
@@ -119,7 +127,7 @@ wq$LocationID <- plyr::revalue(wq$LocationID, rename_locations)
 
 ```{r logan-precip, results='hide'}
 # load logan airport precipitation data from xlsx file
-precip <- myrwaR::load_precip_from_xls(path='H:/Dropbox/Work/mystic/_share_db/Processed/Precip/LoganPrecip.xlsx', as.type='dataframe')
+precip <- myrwaR::load_precip_from_xls(path=precip_path, as.type='dataframe')
 ```
 
 ```{r usgs-precip, results='hide'}
@@ -473,9 +481,12 @@ waterbody_zoom <- c("Alewife Brook"=14,
                     "Shaker Glen Brook"=15,
                     "Sweetwater Brook"=14,
                     "Wellington Brook"=14)
+stopifnot(all(unique(locations$WaterBodyID) %in% names(waterbody_zoom)))
 
 for (waterbody in sort(unique(locations$WaterBodyID))) {
   # check that zoom level is defined above for this waterbody
+  # waterbody <- "Alewife Brook"
+  
   stopifnot(waterbody %in% names(waterbody_zoom))
   wq_waterbody <- filter(wq, WaterBodyID==waterbody, ProjectID=="HOTSPOT",
                          CharacteristicID==bacteria_type) %>%
