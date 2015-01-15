@@ -1,4 +1,5 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+\usepackage{array}
 \usepackage{fullpage}
 $if(fontfamily)$
 \usepackage{$fontfamily$}
@@ -182,7 +183,7 @@ $if(subtitle)$
 $endif$
 
 % change figure/table captions
-\usepackage[font={large,bf},labelfont={Large},skip=12pt,justification=raggedright,singlelinecheck=false]{caption}
+\usepackage[font={large,bf},skip=12pt,justification=raggedright,singlelinecheck=false]{caption}
 
 $for(header-includes)$
 $header-includes$
