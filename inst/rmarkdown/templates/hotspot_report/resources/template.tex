@@ -1,4 +1,5 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+\usepackage{colortbl, xcolor}
 \usepackage{array}
 \usepackage{fullpage}
 $if(fontfamily)$
@@ -183,7 +184,9 @@ $if(subtitle)$
 $endif$
 
 % change figure/table captions
-\usepackage[font={large,bf},skip=12pt,justification=raggedright,singlelinecheck=false]{caption}
+\usepackage[font={normal,bf},skip=12pt,justification=raggedright,singlelinecheck=false]{caption}
+
+\usepackage{float}
 
 $for(header-includes)$
 $header-includes$
@@ -201,6 +204,10 @@ $endfor$
 {\Large $title$}
 
 \textbf{Hotspot Sampling Date}: $sample_date$
+
+\textbf{Municipalities}: $municipalities$
+
+\textbf{Precipitation Record}: $precip_record$
 
 \textbf{Report Date}: $report_date$
 
