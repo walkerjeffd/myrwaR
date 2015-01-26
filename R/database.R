@@ -129,5 +129,7 @@ load_wq <- function(path, projects=NULL, sample_types='S', exclude_flags=FALSE) 
     wq <- subset(wq, is.na(FlagID) | FlagID %in% c("", " "))
   }
   
+  close(ch)
+  
   wq
 } 
