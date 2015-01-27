@@ -52,7 +52,7 @@ if (!file.exists(precip_path)) {
 }
 
 # parse sample date
-sample_date <- ymd(sample_date, tz="EST") # note, must be in EST timezone
+sample_date <- as.Date(sample_date)
 ```
 
 ```{r load-wq, results='hide'}
@@ -61,24 +61,20 @@ wq <- myrwaR::load_wq(path=db_path,
                       projects=c('HOTSPOT', 'MUNI'),
                       sample_types=NULL,
                       exclude_flags=FALSE) %>%
-  mutate(Qualifier=ifelse(is.na(Qualifier), "", Qualifier)) %>%
-  filter(floor_date(Datetime, unit='day') <= sample_date)
-
-# fix WaterBodyID issue by trimming extra spaces (e.g. "Aberjona River " -> "Aberjona River")
-wq$WaterBodyID <- str_trim(wq$WaterBodyID)
+  mutate(Qualifier=ifelse(is.na(Qualifier), "", Qualifier),
+         Date=as.Date(Datetime, unit='day')) %>%
+  filter(Date <= sample_date)
 
 # assign flag for samples on current sample date
-wq$Current <- floor_date(wq$Datetime, unit='day')==sample_date
+wq$Current <- wq$Date==sample_date
 stopifnot(sum(wq$Current)>0) # check there is at least one sample for sample_date
 
 # get visits
 ch <- myrwaR::db_connect(path = db_path)
 visits <- ch %>%
   myrwaR::db_table(table_name = 'Visit') %>%
-  filter(ProjectID=="HOTSPOT", floor_date(Datetime, unit='day') == sample_date)
-
-visits[which(visits$LocationID == 'MALMR0E'), 'HasFlow'] <- 0
-wq <- filter(wq, (LocationID != 'MALMR0E') | !Current)
+  mutate(Date=as.Date(Datetime)) %>%
+  filter(ProjectID=="HOTSPOT", Date==sample_date)
 
 # get locations
 locations <- ch %>%
@@ -87,6 +83,10 @@ locations <- ch %>%
   filter(LocationID %in% visits$LocationID) %>%
   select(LocationID, MunicipalityID, Latitude, Longitude, WaterBodyID, LocationDescription)
 close(ch)
+
+# fix WaterBodyID issue by trimming extra spaces (e.g. "Aberjona River " -> "Aberjona River")
+wq$WaterBodyID <- str_trim(wq$WaterBodyID)
+locations$WaterBodyID <- str_trim(locations$WaterBodyID)
 
 # revalue LocationID
 wq$LocationID <- plyr::revalue(wq$LocationID, rename_locations)
@@ -117,7 +117,7 @@ precip <- myrwaR::load_precip_from_xls(path=precip_path, as.type='dataframe')
 
 # append hourly precip data from USGS (Muddy River) gage
 # if sample date is after end of logan dataset
-if (sample_date > max(precip$Datetime)) {
+if (sample_date > as.Date(max(precip$Datetime))) {
   startDate <- format(with_tz(max(precip$Datetime)+hours(1), tz="America/New_York"), 
                       "%Y-%m-%dT%H:%M:%S")
   endDate <- format(sample_date+days(1), "%Y-%m-%d")
