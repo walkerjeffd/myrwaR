@@ -8,12 +8,11 @@ output: myrwaR::hotspot_report
 ```{r config, echo=FALSE}
 # Path to water quality database and precipitation spreadsheet
 base_path <- '\\\\psf/Dropbox/MysticDB/'
-
 db_path <- file.path(base_path, 'MysticDB_20150116.accdb')
 precip_path <- file.path(base_path, 'Processed/Precip/LoganPrecip.xlsx')
 
-sample_date <- "2014-11-10"
-monitors <- "Andrew Hrycyna"
+sample_date <- "2014-11-10"  # use YYYY-MM-DD format
+monitors <- "Andrew Hrycyna" # use single string for multiple (e.g. "Andy Hrycyna, Patrick Herron")
 
 # rename specific LocationIDs to match MyRWA and Municipalities
 # example: replaces "Blanchard Road" with "CAMD03OF0000"
