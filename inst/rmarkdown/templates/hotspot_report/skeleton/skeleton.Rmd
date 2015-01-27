@@ -228,7 +228,7 @@ p.bar <- filter(wq, Current, CharacteristicID==bacteria_type, ProjectID=="HOTSPO
 tblDataCharacteristics <- c(bacteria_type, "SURF_ANIONIC", "NH3")
 
 tblData <- filter(wq, LocationID %in% locations_hasflow) %>%
-  select(VisitID, LocationID, CharacteristicID, 
+  select(Current, VisitID, LocationID, CharacteristicID, 
          Datetime, Qualifier, ResultValue, WaterBodyID, Weather, ProjectID, Comment) %>%
   arrange(VisitID, LocationID, Datetime, WaterBodyID, Comment) %>%
   filter(CharacteristicID %in% tblDataCharacteristics)
@@ -259,7 +259,7 @@ tblData <- arrange(tblData, LocationID) %>%
 ```
 
 ```{r create-table-data-current}
-tblDataCurrent <- filter(tblData, Date==sample_date, ProjectID=="HOTSPOT") %>%
+tblDataCurrent <- filter(tblData, Current, ProjectID=="HOTSPOT") %>%
   select_("LocationID", bacteria_type, "SURF_ANIONIC", "NH3", "WaterBodyID", "Comment")
 
 if (nrow(visits_noflow) > 0) {
