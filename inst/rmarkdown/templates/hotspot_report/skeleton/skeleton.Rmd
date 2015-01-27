@@ -6,13 +6,13 @@ output: myrwaR::hotspot_report
 ---
 
 ```{r config, echo=FALSE}
-sample_date <- "2014-11-10"  # sample date in YYYY-MM-DD format
-monitors <- "Andrew Hrycyna" # use single string for multiple, e.g. "Andrew Hrycyna, Patrick Herron"
-
 # Path to water quality database and precipitation spreadsheet
 base_path <- '\\\\psf/Dropbox/MysticDB/'
 db_path <- file.path(base_path, 'MysticDB_20150116.accdb')
 precip_path <- file.path(base_path, 'Processed/Precip/LoganPrecip.xlsx')
+
+sample_date <- "2014-11-10"
+monitors <- "Andrew Hrycyna"
 
 # rename specific LocationIDs to match MyRWA and Municipalities
 # example: replaces "Blanchard Road" with "CAMD03OF0000"
@@ -71,25 +71,38 @@ wq$WaterBodyID <- str_trim(wq$WaterBodyID)
 wq$Current <- floor_date(wq$Datetime, unit='day')==sample_date
 stopifnot(sum(wq$Current)>0) # check there is at least one sample for sample_date
 
-# get visits with no flows
+# get visits
 ch <- myrwaR::db_connect(path = db_path)
 visits <- ch %>%
   myrwaR::db_table(table_name = 'Visit') %>%
   filter(ProjectID=="HOTSPOT", floor_date(Datetime, unit='day') == sample_date)
+
+visits[which(visits$LocationID == 'MALMR0E'), 'HasFlow'] <- 0
+wq <- filter(wq, (LocationID != 'MALMR0E') | !Current)
+
+# get locations
+locations <- ch %>%
+  myrwaR::db_table(table_name = 'Location') %>%
+  rename(LocationID=ID) %>%
+  filter(LocationID %in% visits$LocationID) %>%
+  select(LocationID, MunicipalityID, Latitude, Longitude, WaterBodyID, LocationDescription)
 close(ch)
-visits_noflow <- filter(visits, HasFlow==0)
 
 # revalue LocationID
 wq$LocationID <- plyr::revalue(wq$LocationID, rename_locations)
+visits$LocationID <- plyr::revalue(visits$LocationID, rename_locations)
+locations$LocationID <- plyr::revalue(locations$LocationID, rename_locations)
+
+# get visits with no flows
+visits_noflow <- filter(visits, HasFlow==0)
+
+locations <- arrange(locations, LocationID)
+locations <- left_join(locations, select(visits, LocationID, HasFlow))
+
+locations_hasflow <- locations[which(locations$HasFlow==1), 'LocationID']
 ```
 
 ```{r locations}
-# create table of locations for current sample date
-locations <- filter(wq, Current, ProjectID=='HOTSPOT') %>%
-  select(LocationID, MunicipalityID, Latitude, Longitude, WaterBodyID, LocationDescription) %>%
-  unique %>%
-  arrange(LocationID)
-
 # check that LocationID is not duplicated in locations table
 stopifnot(sum(duplicated(locations$LocationID))==0) 
 
@@ -214,7 +227,7 @@ p.bar <- filter(wq, Current, CharacteristicID==bacteria_type, ProjectID=="HOTSPO
 ```{r create-table-data}
 tblDataCharacteristics <- c(bacteria_type, "SURF_ANIONIC", "NH3")
 
-tblData <- filter(wq, LocationID %in% locations$LocationID) %>%
+tblData <- filter(wq, LocationID %in% locations_hasflow) %>%
   select(VisitID, LocationID, CharacteristicID, 
          Datetime, Qualifier, ResultValue, WaterBodyID, Weather, ProjectID, Comment) %>%
   arrange(VisitID, LocationID, Datetime, WaterBodyID, Comment) %>%
@@ -249,6 +262,18 @@ tblData <- arrange(tblData, LocationID) %>%
 tblDataCurrent <- filter(tblData, Date==sample_date, ProjectID=="HOTSPOT") %>%
   select_("LocationID", bacteria_type, "SURF_ANIONIC", "NH3", "WaterBodyID", "Comment")
 
+if (nrow(visits_noflow) > 0) {
+  locations_noflow <- filter(locations, HasFlow==0)
+  data_noflow <- select(locations_noflow, LocationID, WaterBodyID) %>%
+    mutate(LocationID=paste0(LocationID, "*"),
+           SURF_ANIONIC=NA,
+           NH3=NA,
+           Comment=NA)
+  data_noflow[, bacteria_type] <- NA
+  tblDataCurrent <- rbind(tblDataCurrent, data_noflow) %>%
+    arrange(as.character(LocationID))
+}
+
 xtblDataCurrent <- xtable(tblDataCurrent, 
   caption=paste0("Data collected at outfalls during Hotspot sampling event on ", 
                  format(sample_date, '%B %d, %Y')),
@@ -268,15 +293,17 @@ colnames(xtblDataCurrent) <- c("Site ID", paste0(bac_label, ' (#/100ml)'),
 ```
 
 ```{r create-table-locations}
-xtblLocations <- select(locations, 
-       LocationID, MunicipalityID, WaterBodyID, Latitude, Longitude, LocationDescription) %>%
+xtblLocations <- mutate(locations,
+                        LocationID=ifelse(HasFlow==1, LocationID, paste0(LocationID, "*"))) %>%
+  select(LocationID, MunicipalityID, WaterBodyID, Latitude, Longitude, LocationDescription) %>%
   arrange(LocationID) %>%
-  xtable(caption=paste0("Locations Sampled during Hotspot sampling event on ", 
+  xtable(caption=paste0("Locations visited during Hotspot sampling event on ", 
                         format(sample_date, '%B %d, %Y')),
          align=c("l","l","l","l",
                  "r","r","p{2in}"),
          digits = c(0, 0, 0, 0, 4, 4, 0),
          include.rownames=FALSE, include.colnames=T)
+
 # rename columns
 colnames(xtblLocations) <- plyr::revalue(colnames(xtblLocations),
                                          c("LocationID"="Site ID",
@@ -291,7 +318,7 @@ colnames(xtblLocations) <- plyr::revalue(colnames(xtblLocations),
 ```{r create-boxplot}
 wq.historical <- filter(wq, 
                         CharacteristicID==bacteria_type, 
-                        LocationID %in% locations$LocationID)
+                        LocationID %in% locations_hasflow)
 wq.historical.count <- group_by(wq.historical, LocationID) %>%
   summarize(N=n())
 
@@ -439,6 +466,9 @@ print(xtblDataCurrent,
       caption.placement="top", 
       hline.after=c(0),
       NA.string='')
+if (nrow(visits_noflow) > 0) {
+  cat("\\textit{* Location visited but not sampled due to no flow}")
+}
 ```
 
 ```{r table-locations, results='asis'}
@@ -450,6 +480,9 @@ print(xtblLocations,
       floating=TRUE,
       hline.after=c(0),
       NA.string='')
+if (nrow(visits_noflow) > 0) {
+  cat("\\textit{* Location visited but not sampled due to no flow}")
+}
 ```
 
 \clearpage
@@ -470,7 +503,7 @@ p.box
 \clearpage
 
 ```{r tables-historical, results='asis'}
-for (loc in locations$LocationID) {
+for (loc in locations_hasflow) {
   tbl_historical(loc)
 }
 ```
