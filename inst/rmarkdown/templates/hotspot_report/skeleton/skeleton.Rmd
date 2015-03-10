@@ -8,7 +8,7 @@ output: myrwaR::hotspot_report
 ```{r config, echo=FALSE}
 # Path to water quality database and precipitation spreadsheet
 base_path <- '\\\\psf/Dropbox/MysticDB/'
-db_path <- file.path(base_path, 'MysticDB_20150116.accdb')
+db_path <- file.path(base_path, 'MysticDB_20150227.accdb')
 precip_path <- file.path(base_path, 'Processed/Precip/LoganPrecip.xlsx')
 
 sample_date <- "2014-11-10"  # use YYYY-MM-DD format
@@ -322,10 +322,12 @@ wq.historical <- filter(wq,
 wq.historical.count <- group_by(wq.historical, LocationID) %>%
   summarize(N=n())
 
-p.box <- wq.historical %>%
+wq.historical <- left_join(wq.historical, wq.historical.count)
+
+p.box <- filter(wq.historical, N>=5) %>%
   ggplot(aes(LocationID, ResultValue)) +
   geom_boxplot(fill='grey90') +
-  geom_point(mapping=aes(color=Weather), size=4) +
+  geom_point(mapping=aes(color=Weather), data=wq.historical, size=4) +
   geom_point(data=filter(wq.historical, Current), pch=1, size=4, color='red') +
   geom_hline(aes(yintercept=BoatingStandard), 
              data=filter(bac_standards, CharacteristicID==bacteria_type),
@@ -498,7 +500,7 @@ p.box
 
 \end{figure}
 
-*Boxplots show the median (center blank line), inter-quartile range (25th-75th percentiles, top/bottom of box), and range of extreme values (vertical lines). Values at the top of the chart indicate the number of samples for each outfall. Points with red outline were sampled during the Hotspot event on `r format(sample_date, '%B %d, %Y')`.*
+*Boxplots show the median (center blank line), inter-quartile range (25th-75th percentiles, top/bottom of box), and range of extreme values (vertical lines). Values at the top of the chart indicate the number of samples for each outfall. Points with red outline were sampled during the Hotspot event on `r format(sample_date, '%B %d, %Y')`. Box-and-whiskers only shown for sites with at least 5 samples.*
 
 \clearpage
 
