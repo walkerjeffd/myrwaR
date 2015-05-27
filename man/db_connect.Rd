@@ -10,12 +10,13 @@ db_connect(path)
 \item{path}{Path to database}
 }
 \value{
-Connection handle
+RODBC connection handle
 }
 \description{
 Opens a connection to an access database
 }
 \examples{
-ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
+directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
+ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 }
 

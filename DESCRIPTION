@@ -1,17 +1,20 @@
 Package: myrwaR
 Type: Package
-Title: Tools for analyzing hydrologic data for the Mystic River Watershed
-    Association
+Title: Tools for the Mystic River Watershed Association
 Version: 0.1.0
-Date: 2014-05-13
-Author: Jeff Walker <jeff@walkerjeff.com>
-Maintainer: Jeff Walker <jeff@walkerjeff.com>
-Description: Provides functions to load, summarise, qaqc, and visualize MyRWA
-    data
+Date: 2015-05-27
+Authors@R: person("Jeff", "Walker", email = "jeff@walkerjeff.com",
+                  role = c("aut", "cre"))
+Description: Provides functions to load, analyze, and visualization hydrologic
+    and water quality data for the Mystic River Watershed Association (MyRWA)
+Depends: R (>= 3.1.0)
+License: MIT
+LazyData: true
 Imports:
+    dplyr,
     lubridate,
+    plyr,
+    rmarkdown,
     RODBC,
     stringr,
-    rmarkdown,
-    dplyr
-License: MIT
+    zoo

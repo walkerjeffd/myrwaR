@@ -13,7 +13,9 @@ check_string_untrimmed(x)
 boolean
 }
 \description{
-Given character vector, checks if any of the unique values have extra spaces at the start or end (e.g. "a " or " a"). Prints message listing any untrimmed values.
+Given character vector, checks if any of the unique values have extra spaces
+at the start or end (e.g. "a " or " a").
+Prints message listing any untrimmed values.
 }
 \examples{
 check_string_trim(c("a", "b", "c ")) # false

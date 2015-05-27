@@ -7,13 +7,17 @@
 db_results(ch)
 }
 \arguments{
-\item{ch}{Connection handle to database}
+\item{ch}{Open connection handle to database}
+}
+\value{
+Data frame of water quality data
 }
 \description{
-Loads the water quality data from the Result table merged with the Visit table
+Loads the water quality data from the Result table merged with Visit table
 }
 \examples{
-ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
+directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
+ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 wq <- db_results(ch)
 }
 

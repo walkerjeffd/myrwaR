@@ -9,11 +9,16 @@ load_wq(path, projects = NULL, sample_types = "S", exclude_flags = FALSE)
 \arguments{
 \item{path}{Path to MyRWA Access Database}
 
-\item{projects}{ProjectID(s) to keep in dataset (default=NULL for all projects)}
+\item{projects}{ProjectID(s) to keep (default=NULL for all projects)}
 
-\item{sample_types}{SampleTypeID(s) to keep in dataset (default='S' to exclude blanks and duplicates, if NULL retains all sample types)}
+\item{sample_types}{SampleTypeID(s) to keep in dataset (default="S" to
+exclude blanks and duplicates, if NULL retains all sample types)}
 
-\item{exclude_flags}{If TRUE, excludes all samples with any flag, otherwise returns all samples}
+\item{exclude_flags}{If TRUE, excludes all samples with any flag,
+otherwise returns all samples}
+}
+\value{
+A dataframe containing water quality data
 }
 \description{
 Loads water quality data with associated tables

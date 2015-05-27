@@ -4,7 +4,7 @@
 #'
 #' @param path Path to database
 #' @export
-#' @return Connection handle
+#' @return RODBC connection handle
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
 #' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
@@ -17,17 +17,18 @@ db_connect <- function(path) {
 #'
 #' Loads the water quality data from the Result table merged with Visit table
 #'
-#' @param ch Connection handle to database
+#' @param ch Open connection handle to database
+#' @return Data frame of water quality data
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
 #' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 #' wq <- db_results(ch)
 db_results <- function(ch) {
-  tblResult <- db_table(ch, "Result")
-  tblVisit <- db_table(ch, "Visit")
+  tbl_result <- db_table(ch, "Result")
+  tbl_visit <- db_table(ch, "Visit")
 
-  df <- merge(tblResult, tblVisit, by.x="VisitID", by.y="ID", all.x=T)
+  df <- merge(tbl_result, tbl_visit, by.x="VisitID", by.y="ID", all.x=T)
 
   df[, "Datetime"] <- lubridate::with_tz(df[, "Datetime"], tz="EST")
   df[, "CharacteristicID"] <- factor(df[, "CharacteristicID"])
@@ -46,6 +47,7 @@ db_results <- function(ch) {
 #' Loads the data from a table in the database
 #'
 #' @param ch Connection handle to database
+#' @return A dataframe containing the database table
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
@@ -61,6 +63,7 @@ db_table <- function(ch, table_name) {
 #' Retrieves a character vector of table names
 #'
 #' @param ch Connection handle to database
+#' @return A character vector of table names
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
@@ -76,11 +79,13 @@ db_list_tables <- function(ch) {
 #' Retrieves the field names and types from a given database table
 #'
 #' @param ch Connection handle to database
+#' @return A dataframe containing the column names and types for the specified
+#'   table
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
 #' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
-#' schema_results <- db_table_fields(ch, "Results")
+#' schema_results <- db_table_fields(ch, table_name = "Results")
 db_table_fields <- function(ch, table_name) {
   fields <- RODBC::sqlColumns(ch, table_name)[, c("COLUMN_NAME", "TYPE_NAME")]
   fields
@@ -92,6 +97,7 @@ db_table_fields <- function(ch, table_name) {
 #' WaterBody, and LocationType tables
 #'
 #' @param ch Connection handle to database
+#' @return A dataframe containing the locations in the database
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
@@ -116,8 +122,11 @@ db_locations <- function(ch) {
 #'
 #' @param path Path to MyRWA Access Database
 #' @param projects ProjectID(s) to keep (default=NULL for all projects)
-#' @param sample_types SampleTypeID(s) to keep in dataset (default="S" to exclude blanks and duplicates, if NULL retains all sample types)
-#' @param exclude_flags If TRUE, excludes all samples with any flag, otherwise returns all samples
+#' @param sample_types SampleTypeID(s) to keep in dataset (default="S" to
+#'        exclude blanks and duplicates, if NULL retains all sample types)
+#' @param exclude_flags If TRUE, excludes all samples with any flag,
+#'        otherwise returns all samples
+#' @return A dataframe containing water quality data
 #' @export
 load_wq <- function(path, projects=NULL, sample_types="S",
                     exclude_flags=FALSE) {

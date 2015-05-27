@@ -9,11 +9,15 @@ db_list_tables(ch)
 \arguments{
 \item{ch}{Connection handle to database}
 }
+\value{
+A character vector of table names
+}
 \description{
 Retrieves a character vector of table names
 }
 \examples{
-ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
+directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
+ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 table_names <- db_list_tables(ch)
 }
 

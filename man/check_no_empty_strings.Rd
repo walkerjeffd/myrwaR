@@ -13,7 +13,8 @@ check_no_empty_strings(x)
 boolean
 }
 \description{
-Given character vector, checks if any of the unique values are empty strings. Prints message listing any empty string values.
+Given character vector, checks if any of the unique values are empty strings.
+Prints message listing any empty string values.
 }
 \examples{
 check_string_trim(c("a", "b", " "))  # false

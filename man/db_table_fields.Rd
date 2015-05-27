@@ -9,11 +9,16 @@ db_table_fields(ch, table_name)
 \arguments{
 \item{ch}{Connection handle to database}
 }
+\value{
+A dataframe containing the column names and types for the specified
+  table
+}
 \description{
 Retrieves the field names and types from a given database table
 }
 \examples{
-ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
-schema_results <- db_table_fields(ch, 'Results')
+directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
+ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+schema_results <- db_table_fields(ch, table_name = "Results")
 }
 

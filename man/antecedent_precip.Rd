@@ -20,9 +20,11 @@ antecedent_precip(x, period = 48, precip.name = "Precip",
 numeric vector of antecedent precipitation
 }
 \description{
-Computes antecedent precipitation as a rolling sum. Ensures the time series is regular and continuous
+Computes antecedent precipitation as a rolling sum. Ensures the time series
+is regular and continuous
 }
 \examples{
-pcp$Precip.48 <- antecedent_precip(pcp, period=48, precip.name="Precip", datetime.name="Datetime")
+pcp$Precip.48 <- antecedent_precip(pcp, period=48, precip.name="Precip",
+                                   datetime.name="Datetime")
 }
 

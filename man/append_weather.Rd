@@ -14,7 +14,7 @@ append_weather(wq, precip, period = 48, precip.threshold = 0.25,
 
 \item{period}{antecedent period in number of hours}
 
-\item{precip.threshold}{threshold value for assigning wet/dry to Weather column}
+\item{precip.threshold}{threshold for assigning wet/dry to Weather column}
 
 \item{precip.name}{name of precipitation column}
 }
@@ -22,6 +22,7 @@ append_weather(wq, precip, period = 48, precip.threshold = 0.25,
 numeric vector of antecedent precipitation
 }
 \description{
-Appends antecedent precipitation columns for multiple periods to an existing wq data frame
+Appends antecedent precipitation columns for multiple periods to an
+existing wq data frame
 }
 

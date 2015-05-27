@@ -9,11 +9,16 @@ db_locations(ch)
 \arguments{
 \item{ch}{Connection handle to database}
 }
+\value{
+A dataframe containing the locations in the database
+}
 \description{
-Retrieves the station locations from the database by merging Location, WaterBody, and LocationType tables
+Retrieves the station locations from the database by merging Location,
+WaterBody, and LocationType tables
 }
 \examples{
-ch <- db_connect('C://Users//Jeff//Dropbox//Work//mystic//data//MysticDB_20140510.accdb')
+directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
+ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 locations <- db_locations(ch)
 }
 

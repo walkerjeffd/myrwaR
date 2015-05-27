@@ -15,10 +15,13 @@ load_precip_from_xls(path, as.type = c("dataframe", "zoo"))
 dataframe or zoo object of hourly precipitation values
 }
 \description{
-Loads the hourly precipitation data from LoganPrecip.xlsx. Returns zoo object or data frame with columns (Datetime, Precip)
+Loads the hourly precipitation data from LoganPrecip.xlsx.
+Returns zoo object or data frame with columns (Datetime, Precip)
 }
 \examples{
-pcp.df <- load_precip_from_xls(file.path("..","..","_share_db","Processed","Precip","LoganPrecip.xlsx"), as.type='dataframe')
-pcp.zoo <- load_precip_from_xls(file.path("..","..","_share_db","Processed","Precip","LoganPrecip.xlsx"), as.type='zoo')
+filepath <- file.path("..","..","_share_db","Processed",
+                      "Precip","LoganPrecip.xlsx")
+pcp.df <- load_precip_from_xls(filepath, as.type='dataframe')
+pcp.zoo <- load_precip_from_xls(filepath, as.type='zoo')
 }
 
