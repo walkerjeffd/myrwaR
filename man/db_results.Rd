@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{db_results}
 \alias{db_results}
-\title{Load water quality data}
+\title{Load results table}
 \usage{
 db_results(ch)
 }
