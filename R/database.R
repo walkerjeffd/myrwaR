@@ -13,7 +13,7 @@ db_connect <- function(path) {
   ch
 }
 
-#' Load water quality data
+#' Load results table
 #'
 #' Loads the water quality data from the Result table merged with Visit table
 #'
