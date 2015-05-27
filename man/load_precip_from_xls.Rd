@@ -2,21 +2,31 @@
 % Please edit documentation in R/precip.R
 \name{load_precip_from_xls}
 \alias{load_precip_from_xls}
-\title{Load precipitation from LoganPrecip.xlsx}
+\title{Load precipitation from Excel File}
 \usage{
-load_precip_from_xls(path, as.type = c("dataframe", "zoo"))
+load_precip_from_xls(path, sheet.name = "Processed precipitation",
+  tz = "EST", datetime.name = "Datetime", value.name = "Precip",
+  as.type = c("dataframe", "zoo"))
 }
 \arguments{
-\item{path}{path and filename to precipitation spreadsheet (LoganPrecip.xlsx)}
+\item{path}{Path and filename to precipitation spreadsheet (LoganPrecip.xlsx)}
 
-\item{as.type}{return type as 'dataframe' (default) or 'zoo'}
+\item{sheet.name}{Name of workbook sheet to load data from}
+
+\item{tz}{Timezone of datetimes (default="EST")}
+
+\item{value.name}{Name of precipitation value column}
+
+\item{as.type}{Return type as 'dataframe' (default) or 'zoo'}
+
+\item{datatime.name}{Name of datetime column}
 }
 \value{
 dataframe or zoo object of hourly precipitation values
 }
 \description{
-Loads the hourly precipitation data from LoganPrecip.xlsx.
-Returns zoo object or data frame with columns (Datetime, Precip)
+Loads the hourly precipitation data from an Excel spreadsheet such as
+LoganPrecip.xlsx.
 }
 \examples{
 filepath <- file.path("..","..","_share_db","Processed",

@@ -1,0 +1,94 @@
+---
+title: "Loading and Analyzing Precipitation Data"
+author: "Jeffrey D. Walker, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Precipitation Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+```
+
+
+The `myrwaR` package includes functions for loading and analyzing precipitation data. First, load the package.
+
+```{r load-package}
+library(myrwaR)
+library(ggplot2)
+```
+
+## Loading Precipitation Data from Excel File
+
+To load a precipitation dataset from an Excel file, use the `load_precip_from_xls()` function.
+
+```{r load-xls}
+xls_path <- "H:/Dropbox/Work/mystic/_share_db/Processed/Precip/LoganPrecip.xlsx"
+prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
+str(prcp)
+```
+
+This function takes a number of additional arguments such as the name of the workbook sheet, the timezone of the datetimes, and the names of the datetime and precipitation value columns. The defaults for these arguments are based on MyRWA's current `LocationPrecip.xlsx` file.
+
+### Returning a zoo Object
+
+The precipitation timeseries can also be returned as a `zoo` object (see the [zoo package](http://cran.r-project.org/web/packages/zoo/index.html) for details). A zoo object is designed to handle timeseries data better than a dataframe. However, it takes some practice and learning the package to use effectively.
+
+```{r load-xls-zoo}
+prcp_zoo <- load_precip_from_xls(path = xls_path, as.type = "zoo")
+str(prcp_zoo)
+```
+
+## Loading Data from USGS
+
+Data from USGS precipitation gages can be retrieved using the `load_precip_from_usgs()` function.
+
+```{r load-prcp-usgs}
+prcp_usgs <- load_precip_from_usgs(startDate="2015-05-01", endDate="2015-05-10")
+str(prcp_usgs)
+```
+
+```{r plot-prcp-usgs, fig.width=6, fig.height=4, warning=FALSE}
+ggplot(prcp_usgs, aes(Datetime, Precip)) +
+  geom_line() +
+  theme_bw()
+```
+
+
+## Computing Antecedent Precipitation
+
+Antecedent precipitation is a useful variable for analyzing water quality data. The `antecedent_precip()` function computes antecedent precipitation based on an hourly timeseries and a specified duration (e.g. 48-hour). The function returns a numeric vector of the same length as the original precipitation. Note that the first `n-1` elements will be `NA`, since there are insufficient values available to compute the full antecedent precipitation.
+
+```{r ante-prcp}
+ante_prcp <- antecedent_precip(prcp, period = 48)
+summary(ante_prcp)
+```
+
+The function also checks that the input timeseries is continuous and at an hourly timestep. If there are any gaps, duplicated datetimes, or `NA` values, then the function will throw and error. For example, if the 100th row of `prcp` is removed`:
+
+```{r ante-error, results="hide", warning=FALSE, error=TRUE}
+antecedent_precip(prcp[-100, ], period = 48)
+```
+
+To create a data frame containing multiple antecedent precipitation columns,
+just save the result `antecedent_precip()` to new columns in the original data frame.
+
+```{r ante-prcp-col}
+prcp$Precip24 <- antecedent_precip(prcp, period = 24)
+prcp$Precip48 <- antecedent_precip(prcp, period = 48)
+summary(prcp)
+```
+
+This figure shows the historical hourly (black), 24-hour antecedent (red), and 48-hour antecedent (blue) precipitation over 20 days of the timeseries.
+
+```{r plot-ante-prcp, fig.width=6, fig.height=4, warning=FALSE}
+ggplot(prcp[1:480, ], aes(Datetime)) +
+  geom_line(aes(y=Precip)) +
+  geom_line(aes(y=Precip24), color='red') +
+  geom_line(aes(y=Precip48), color='deepskyblue') +
+  theme_bw()
+```
+

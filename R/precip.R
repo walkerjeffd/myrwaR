@@ -1,10 +1,14 @@
-#' Load precipitation from LoganPrecip.xlsx
+#' Load precipitation from Excel File
 #'
-#' Loads the hourly precipitation data from LoganPrecip.xlsx.
-#' Returns zoo object or data frame with columns (Datetime, Precip)
+#' Loads the hourly precipitation data from an Excel spreadsheet such as
+#' LoganPrecip.xlsx.
 #'
-#' @param path path and filename to precipitation spreadsheet (LoganPrecip.xlsx)
-#' @param as.type return type as 'dataframe' (default) or 'zoo'
+#' @param path Path and filename to precipitation spreadsheet (LoganPrecip.xlsx)
+#' @param sheet.name Name of workbook sheet to load data from
+#' @param tz Timezone of datetimes (default="EST")
+#' @param datatime.name Name of datetime column
+#' @param value.name Name of precipitation value column
+#' @param as.type Return type as 'dataframe' (default) or 'zoo'
 #' @export
 #' @return dataframe or zoo object of hourly precipitation values
 #' @examples
@@ -12,30 +16,73 @@
 #'                       "Precip","LoganPrecip.xlsx")
 #' pcp.df <- load_precip_from_xls(filepath, as.type='dataframe')
 #' pcp.zoo <- load_precip_from_xls(filepath, as.type='zoo')
-load_precip_from_xls <- function(path, as.type=c("dataframe","zoo")) {
+load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
+                                 tz="EST", datetime.name="Datetime",
+                                 value.name="Precip", as.type=c("dataframe","zoo")) {
   as.type <- match.arg(as.type)
 
-  message(paste0("Loading precip file: ", normalizePath(path)))
-
-  # open precip file
+  # read precip file
   ch <- RODBC::odbcConnectExcel2007(path)
+  x <- RODBC::sqlFetch(ch, sqtable = sheet.name,
+                       na.strings = "NA", as.is = TRUE)
+  close(ch)
 
-  # fetch data
-  df <- RODBC::sqlFetch(ch, sqtable = "Processed precipitation",
-                        na.strings = "NA", as.is = TRUE)
-  RODBC::close(ch)
+  # extract datetime and value columns
+  x <- x[, c(datetime.name, value.name)]
 
-  # drop first two columns ("mm/dd/yyyy","hour")
-  df <- df[, c("Datetime", "Precip")]
-
-  df$Datetime <- lubridate::ymd_hms(df$Datetime, tz="EST")
+  # parse datetimes
+  x[, datetime.name] <- lubridate::ymd_hms(x[, datetime.name], tz = tz)
 
   if (as.type == "zoo") {
-    z <- zoo::zoo(df$Precip, df$Datetime)
-    return(z)
+    x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
   }
 
-  df
+  x
+}
+
+#' Load precipitation from USGS Web Services
+#'
+#' Fetches and returns precipitation timeseries from USGS web services.
+#' Timeseries is automatically aggregated to hourly timesteps.
+#'
+#' @param startDate Start date of timeseries as string
+#' @param endDate End date of timeseries as string
+#' @param siteNumber USGS station ID (default=01104683 for Muddy River)
+#' @param tz Timezone assigned to resulting dataframe (default="EST")
+#' @param as.type Return type as 'dataframe' (default) or 'zoo'
+#' @export
+#' @return dataframe or zoo object of hourly precipitation timeseries in
+#'   inches/hour
+#' @examples
+#' pcp_usgs <- load_precip_from_usgs(startDate="2015-05-01",
+#'                                   endDate="2015-05-10")
+load_precip_from_usgs <- function(startDate, endDate, siteNumber="01104683",
+                                  tz="EST", as.type=c("dataframe","zoo")) {
+  as.type <- match.arg(as.type)
+  parameterCd <- "00045" # precipitation
+  x <- dataRetrieval::readNWISuv(siteNumber=siteNumber,
+                                 parameterCd=parameterCd,
+                                 startDate=startDate,
+                                 endDate=endDate,
+                                 tz="America/New_York")
+
+  if (nrow(x) == 0) {
+    stop("USGS returned no results for precipitation query")
+  }
+
+  x <- dplyr::select(x, Datetime=dateTime, Precip=X_00045_00011)
+  x <- dplyr::mutate(x,
+                     Datetime=lubridate::with_tz(Datetime, tzone=tz),
+                     Datetime=lubridate::floor_date(Datetime, unit="hour"))
+  x <- dplyr::group_by(x, Datetime)
+  x <- dplyr::summarise(x, Precip=sum(Precip))
+  x <- as.data.frame(x)
+
+  if (as.type == "zoo") {
+    x <- zoo::zoo(x = x[, "Precip"], order.by = x[, "Datetime"])
+  }
+
+  x
 }
 
 #' Computes antecedent precipitation
@@ -56,6 +103,7 @@ antecedent_precip <- function(x, period=48, precip.name="Precip",
                               datetime.name="Datetime") {
   check_hourly(x[[datetime.name]])
   apcp <- stats::filter(x[, precip.name], rep(1, period), side = 1)
+  apcp <- as.numeric(apcp)
   apcp
 }
 
