@@ -1,9 +1,9 @@
 myrwaR Package
 ===============
 
-This package includes functions for analyzing hydrologic and water quality data of the Mystic River.
+This package contains functions for loading, analyzing, and reporting hydrologic and water quality data for the [Mystic River Watershed Association](http://mysticriver.org).
 
-by [Jeff Walker](http://walkerjeff.com)
+[Jeffrey D. Walker, PhD](http://walkerjeff.com)
 
 Installation
 ============
@@ -13,6 +13,6 @@ To install this package, first install the `devtools` package. Then use `install
 ```r
 install.packages('devtools')
 library(devtools)
-install_github('walkerjeffd/myrwa-r')
+install_github('walkerjeffd/myrwaR')
 library(myrwaR)
 ```
