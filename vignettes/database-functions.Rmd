@@ -29,10 +29,11 @@ ch <- db_connect(path = "H:/Dropbox/Work/mystic/db/MysticDB_20150227.accdb")
 
 ## Retrieving Data from Any Table
 
-The `db_list_tables()` function lists the names of tables in the database:
+The `db_list_tables()` function lists the names of tables in the database (note that `dplyr` has 
+a function with the same name, so we need to namespace it with `myrwaR::`):
 
 ```{r list-tables}
-db_list_tables(ch)
+myrwaR::db_list_tables(ch)
 ```
 
 To load the data from any one of these tables, use `db_table()`. For example, to get the `Location` table:

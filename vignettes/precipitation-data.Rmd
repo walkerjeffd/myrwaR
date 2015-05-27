@@ -14,10 +14,12 @@ knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
 ```
 
 
-The `myrwaR` package includes functions for loading and analyzing precipitation data. First, load the package.
+The `myrwaR` package includes functions for loading and analyzing precipitation data. First, load the packages.
 
-```{r load-package}
+```{r load-package, message=FALSE, warning=FALSE}
 library(myrwaR)
+library(dplyr)
+library(lubridate)
 library(ggplot2)
 ```
 
@@ -90,5 +92,89 @@ ggplot(prcp[1:480, ], aes(Datetime)) +
   geom_line(aes(y=Precip24), color='red') +
   geom_line(aes(y=Precip48), color='deepskyblue') +
   theme_bw()
+```
+
+## Storm Event Analysis
+
+It is useful to identify individual storm events from historical precipitation data.
+
+For example, let's take the hourly precipitation for March 2010. The plot below shows some small and some large events.
+
+```{r plot-prcp-032010, fig.width=6, fig.height=4, warning=FALSE}
+prcp_032010 <- dplyr::filter(prcp, lubridate::year(Datetime)==2010, month(Datetime)==3)
+ggplot(prcp_032010, aes(Datetime, Precip)) +
+  geom_line() +
+  theme_bw()
+```
+
+The `assign_precip_events()` function can then identify and assign unique IDs to each event.
+
+```{r prcp-events, fig.width=6, fig.height=4, warning=FALSE}
+prcp_032010_evt <- assign_precip_events(x = prcp_032010)
+str(prcp_032010_evt)
+```
+
+The result from this function is a copy of the original timeseries with additional columns for:
+
+- `EventID`: unique ID for the event
+- `EventType`: type of event ("Wet" or "Dry")
+- `EventDuration`: number of hours since the start of the event
+
+```{r plot-prcp-evt, fig.width=6, fig.height=4, warning=FALSE}
+ggplot(prcp_032010_evt, aes(Datetime, Precip, color=factor(EventID), shape=EventType)) +
+  geom_point(alpha=0.6, size=3) +
+  scale_color_discrete("EventID") +
+  scale_shape_manual(values=c("Dry"=3, "Wet"=17)) +
+  theme_bw()
+```
+
+This figure shows the precipitation during each wet event.
+
+```{r plot-prcp-wet, fig.width=6, fig.height=4, warning=FALSE}
+filter(prcp_032010_evt, EventType == "Wet") %>%
+  ggplot(aes(Datetime, Precip, color=factor(EventID))) +
+  geom_line() +
+  labs(x="", y="Hourly Precipitation (in/hr)") +
+  scale_color_discrete("EventID") +
+  facet_wrap(~EventID, scales="free") +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=45, hjust=1, vjust=1))
+```
+
+We can also use `dplyr` to compute the cumulative precipitation of each event:
+
+```{r plot-prcp-wet-cumul, fig.width=6, fig.height=4, warning=FALSE}
+filter(prcp_032010_evt, EventType == "Wet") %>%
+  group_by(EventID) %>%
+  mutate(CumulPrecip=cumsum(Precip)) %>%
+  ggplot(aes(Datetime, CumulPrecip, color=factor(EventID))) +
+  geom_line() +
+  labs(x="", y="Cumulative Hourly Precipitation (in)") +
+  scale_color_discrete("EventID") +
+  facet_wrap(~EventID, scales="free") +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=45, hjust=1, vjust=1))
+
+```
+
+### Event Summaries
+
+We can summarise the events using `dplyr` grouping functions. Note that the first
+line in this chain shifts the EventDuration column down one row in order to get
+the antecedent dry period prior to each wet event. The wet events are then grouped by 
+`EventID` and summarized.
+
+```{r prcp-evt-summary}
+mutate(prcp_032010_evt, LagEventDuration=lag(EventDuration)) %>%
+  filter(EventType == "Wet") %>%
+  group_by(EventID) %>%
+  summarise(StartDatetime=min(Datetime),
+            EndDatetime=max(Datetime),
+            AntecedentDryPeriod=LagEventDuration[1],
+            TotalDuration=max(EventDuration),
+            PeakIntensity=max(Precip),
+            MeanIntensity=sum(Precip)/TotalDuration,
+            TotalDepth=sum(Precip)) %>%
+  as.data.frame
 ```
 

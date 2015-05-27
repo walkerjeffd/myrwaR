@@ -2,6 +2,7 @@
 
 export(antecedent_precip)
 export(append_weather)
+export(assign_precip_events)
 export(check_hourly)
 export(check_no_empty_strings)
 export(check_string_untrimmed)

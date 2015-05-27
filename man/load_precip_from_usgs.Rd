@@ -19,7 +19,8 @@ load_precip_from_usgs(startDate, endDate, siteNumber = "01104683",
 \item{as.type}{Return type as 'dataframe' (default) or 'zoo'}
 }
 \value{
-dataframe or zoo object of hourly timeseries
+dataframe or zoo object of hourly precipitation timeseries in
+  inches/hour
 }
 \description{
 Fetches and returns precipitation timeseries from USGS web services.
