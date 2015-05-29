@@ -11,12 +11,11 @@
 #' @examples
 #' zoo.regular(df$Datetime, df$Value, by="hour", fill=NA)
 zoo.regular <- function(dates, values, by="hour", fill=NA) {
-  require()
   z <- zoo::zoo(values, dates)
   z <- merge(z,
              zoo::zoo(, seq(floor_date(start(z), "day"),
                             ceiling_date(end(z), "day"),
-                            by="day")),
+                            by=by)),
              fill=fill)
   z <- z[1:(length(z) - 1)]
   return(z)
@@ -24,29 +23,30 @@ zoo.regular <- function(dates, values, by="hour", fill=NA) {
 
 #' Checks if vector of hourly timestamps is regular
 #'
-#' Given vector of POSIXct values, checks if the series is regular (i.e. consecutive and complete)
+#' Given a timeseries as a zoo object or vector of datetime values, checks if
+#' the series is regular (i.e. consecutive and complete) at hourly timesteps
 #'
-#' @param x vector of POSIXct values
+#' @param x zoo object or vector of datetimes
 #' @export
 #' @return boolean
 #' @examples
-#' check_hourly(df$Datetime)
-check_hourly <- function(x) {
-  x.difftime <- as.numeric(difftime(x[2:length(x)],
-                                    x[1:(length(x) - 1)],
-                                    units="secs"))
-
-  if (min(x.difftime) < 3600) {
-    x.check <- x[which(x.difftime < 3600)[1]]
-    stop(paste0("Time series is not regular, check timeseries at ", x.check))
-    return(FALSE)
-  } else if (max(x.difftime) > 3600) {
-    x.check <- x[which(x.difftime > 3600)[1]]
-    stop(paste0("Time series is not regular, check timeseries at ", x.check))
-    return(FALSE)
+#' is.regular_hourly(df$Datetime)
+is.regular_hourly <- function(x) {
+  if (inherits(x, 'zoo')) {
+    x <- time(x)
   }
+  dt <- as.numeric(difftime(x[2:length(x)],
+                            x[1:(length(x) - 1)],
+                            units="secs"))
 
-  return(TRUE)
+  if (any(dt != 3600)) {
+    check_at <- which(dt != 3600)[1]
+    message(paste0("Time series is not regular, check timeseries around ",
+                   x[check_at], " (index ", check_at, ")"))
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
 }
 
 #' Get water year from date
