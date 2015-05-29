@@ -22,8 +22,8 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
     stop(paste0("Could not find value column called ", value.name))
   }
 
-  if (!check_hourly(x[, datetime.name])) {
-    stop("Timeseries is not hourly regular")
+  if (!is.regular_hourly(x[, datetime.name])) {
+    stop("Timeseries is not hourly and continuous")
   }
 
   df <- x
@@ -42,9 +42,7 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
                  x_rle$lengths)
   x$IsWet <- x$IsWet > 0
 
-  # assign wet event IDs
-#   x$WetEventID <- c(as.numeric(x$IsWet[1]),
-#                     ifelse(diff(x$IsWet) > 0, diff(x$IsWet), 0))
+  # assign EventID
   x$EventID <- c(as.numeric(x$IsWet[1]), diff(x$IsWet))
   x$EventID <- abs(x$EventID)
   x$EventID <- cumsum(x$EventID)
@@ -56,7 +54,7 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
   # take subset of events that meet minimum threshold
   x_total <- subset(x_total, Total >= threshold.total)
 
-  # assign wet events an ID of 0 if they did not meet the threshold
+  # remove wet events if they did not meet the threshold
   x[which(!(x$EventID %in% x_total$EventID)), "IsWet"] <- FALSE
 
   # reassign EventID based on current IsWet
@@ -67,24 +65,10 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
   # get rle of EventID
   x_rle_event <- rle(x$EventID)
 
-  # add counter for each dry/wet event
+  # add counter for each event
   x$EventDuration <- unlist(sapply(x_rle_event$lengths, seq))
 
-  # set WetEventID and DryEventID to NA during opposite event type
-#   x[which(x$WetEventID == 0), "WetEventID"] <- NA
-#   x[which(x$DryEventID == 0), "DryEventID"] <- NA
-
-  # assign counter for dry events (number of hours since end of last wet event)
-  # x$DryEventPeriod <- ifelse(!is.na(x$DryEventID), x$Counter, 0)
-
-  # assign counter for wet events (number of hours since end of last dry event)
-  # x$WetEventPeriod <- ifelse(!is.na(x$WetEventID), x$Counter, 0)
-
-  # add Wet/Dry EventID, EventPeriod to original df and return
-#   df$WetEventID <- x$WetEventID
-#   df$WetEventPeriod <- x$WetEventPeriod
-#   df$DryEventID <- x$DryEventID
-#   df$DryEventPeriod <- x$DryEventPeriod
+  # add results to original df
   df$EventID <- x$EventID
   df$EventType <- ifelse(x$IsWet, "Wet", "Dry")
   df$EventDuration <- x$EventDuration
