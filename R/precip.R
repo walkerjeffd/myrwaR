@@ -54,44 +54,93 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
 #' Fetches and returns precipitation timeseries from USGS web services.
 #' Timeseries is automatically aggregated to hourly timesteps.
 #'
-#' @param startDate Start date of timeseries as string
-#' @param endDate End date of timeseries as string
-#' @param siteNumber USGS station ID (default=01104683 for Muddy River)
+#' @param start_date Start date of timeseries as string
+#' @param end_date End date of timeseries as string
+#' @param station_id USGS station ID (default=01104683 for Muddy River)
 #' @param tz Timezone assigned to resulting dataframe (default="EST")
 #' @param as.type Return type as 'dataframe' (default) or 'zoo'
 #' @export
 #' @return dataframe or zoo object of hourly precipitation timeseries in
 #'   inches/hour
 #' @examples
-#' pcp_usgs <- load_precip_from_usgs(startDate="2015-05-01",
-#'                                   endDate="2015-05-10")
-load_precip_from_usgs <- function(startDate, endDate, siteNumber="01104683",
-                                  tz="EST", as.type=c("dataframe","zoo")) {
+#' pcp_usgs <- load_precip_from_usgs(start_date="2015-05-01",
+#'                                   end_date="2015-05-10")
+load_precip_from_usgs <- function(start_date, end_date=NULL,
+                                  station_id="01104683",
+                                  tz="EST", as.type=c("dataframe","zoo"),
+                                  datetime.name = "Datetime",
+                                  value.name = "Precip") {
+  if (is.null(end_date)) {
+    end_date <- today()
+  }
+
   as.type <- match.arg(as.type)
+
   parameterCd <- "00045" # precipitation
-  x <- dataRetrieval::readNWISuv(siteNumber=siteNumber,
+
+    x <- dataRetrieval::readNWISuv(siteNumber=station_id,
                                  parameterCd=parameterCd,
-                                 startDate=startDate,
-                                 endDate=endDate,
+                                 startDate=start_date,
+                                 endDate=end_date,
                                  tz="America/New_York")
 
   if (nrow(x) == 0) {
-    stop("USGS returned no results for precipitation query")
+    warning("USGS returned no results for precipitation query")
+    return(NULL)
   }
 
-  x <- dplyr::select(x, Datetime=dateTime, Precip=X_00045_00011)
-  x <- dplyr::mutate(x,
-                     Datetime=lubridate::with_tz(Datetime, tzone=tz),
-                     Datetime=lubridate::floor_date(Datetime, unit="hour"))
-  x <- dplyr::group_by(x, Datetime)
-  x <- dplyr::summarise(x, Precip=sum(Precip))
-  x <- as.data.frame(x)
+  x_datetime <- x[["dateTime"]]
+  x_value <- x[["X_00045_00011"]]
 
-  if (as.type == "zoo") {
-    x <- zoo::zoo(x = x[, "Precip"], order.by = x[, "Datetime"])
+  x_datetime <- lubridate::with_tz(x_datetime, tzone=tz)
+
+  z <- zoo::zoo(x_value, order.by = x_datetime)
+  z <- aggregate(z, by = lubridate::floor_date(time(z), unit="hour"), sum)
+
+  if (as.type == "dataframe") {
+    df <- data.frame(date = time(z), value = zoo::coredata(z))
+    names(df) <- c(datetime.name, value.name)
+    return(df)
+  } else {
+    return(z)
+  }
+}
+
+fill_precip_with_usgs <- function(x, start_date=NULL, end_date=NULL,
+                                  station_id="01104683",
+                                  datetime.name="Datetime",
+                                  value.name="Precip") {
+  if (is.null(start_date)) {
+    start_date <- max(x[, datetime.name])
+  }
+  if (is.null(end_date)) {
+    end_date <- today()
   }
 
-  x
+  start_date <- as.character(start_date)
+  end_date <- as.character(end_date)
+
+  usgs <- load_precip_from_usgs(start_date = start_date,
+                                end_date = end_date,
+                                station_id = station_id,
+                                tz = lubridate::tz(x[, datetime.name]),
+                                as.type = "dataframe",
+                                datetime.name = datetime.name,
+                                value.name = value.name)
+  if (is.null(usgs)) {
+    warning("USGS did not reqturn any data, so nothing was appended")
+    return(x)
+  }
+
+  usgs <- usgs[which(usgs[, datetime.name] > max(x[, datetime.name])), ]
+
+  x_new <- dplyr::rbind_list(x, usgs)
+
+  if (!is.regular_hourly(x_new[[datetime.name]])) {
+    warning("Filled timeseries is not hourly and continuous")
+  }
+
+  x_new
 }
 
 #' Computes antecedent precipitation

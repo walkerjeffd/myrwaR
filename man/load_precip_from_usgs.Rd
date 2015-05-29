@@ -4,15 +4,16 @@
 \alias{load_precip_from_usgs}
 \title{Load precipitation from USGS Web Services}
 \usage{
-load_precip_from_usgs(startDate, endDate, siteNumber = "01104683",
-  tz = "EST", as.type = c("dataframe", "zoo"))
+load_precip_from_usgs(start_date, end_date = NULL, station_id = "01104683",
+  tz = "EST", as.type = c("dataframe", "zoo"), datetime.name = "Datetime",
+  value.name = "Precip")
 }
 \arguments{
-\item{startDate}{Start date of timeseries as string}
+\item{start_date}{Start date of timeseries as string}
 
-\item{endDate}{End date of timeseries as string}
+\item{end_date}{End date of timeseries as string}
 
-\item{siteNumber}{USGS station ID (default=01104683 for Muddy River)}
+\item{station_id}{USGS station ID (default=01104683 for Muddy River)}
 
 \item{tz}{Timezone assigned to resulting dataframe (default="EST")}
 
@@ -27,7 +28,7 @@ Fetches and returns precipitation timeseries from USGS web services.
 Timeseries is automatically aggregated to hourly timesteps.
 }
 \examples{
-pcp_usgs <- load_precip_from_usgs(startDate="2015-05-01",
-                                  endDate="2015-05-10")
+pcp_usgs <- load_precip_from_usgs(start_date="2015-05-01",
+                                  end_date="2015-05-10")
 }
 
