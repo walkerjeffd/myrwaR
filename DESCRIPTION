@@ -10,7 +10,7 @@ Description: Provides functions to load, analyze, and visualization hydrologic
 Depends: R (>= 3.1.0)
 License: MIT
 LazyData: true
-Imports:
+Imports: 
     dataRetrieval,
     dplyr,
     lubridate,
@@ -19,7 +19,8 @@ Imports:
     RODBC,
     stringr,
     zoo
-Suggests:
+Suggests: 
     knitr,
-    ggplot2
+    ggplot2,
+    testthat
 VignetteBuilder: knitr
