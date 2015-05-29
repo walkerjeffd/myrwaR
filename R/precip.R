@@ -106,9 +106,6 @@ antecedent_precip <- function(x, period=48, delay=0, fun=sum,
                               value.name="Precip",
                               datetime.name="Datetime") {
   if (!inherits(x, 'zoo')) {
-#     x <- zoo.regular(dates = x[, datetime.name],
-#                      values = x[, value.name],
-#                      by = "hour", fill = NA)
     x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
   }
 
@@ -117,11 +114,9 @@ antecedent_precip <- function(x, period=48, delay=0, fun=sum,
          inconsistent frequency")
   }
 
-  # check_hourly(x[[datetime.name]])
-
   apcp <- zoo::rollapply(x, period, fun, align = 'right', fill = NA)
   apcp <- lag(apcp, k = -1*delay, na.pad = TRUE)
-  coredata(apcp)
+  zoo::coredata(apcp)
 }
 
 
