@@ -91,20 +91,37 @@ load_precip_from_usgs <- function(startDate, endDate, siteNumber="01104683",
 #' is regular and continuous
 #'
 #' @param x data frame of hourly precipitation values
-#' @param period antecedent period in number of hours
-#' @param precip.name name of precipitation values column
+#' @param period duration of antecedent period in number of hours
+#' @param delay shift the antecedent period in number of hours
+#' @param fun function applied to each period (sum, max)
+#' @param value.name name of values column
 #' @param datetime.name name of date/time column
 #' @export
 #' @return numeric vector of antecedent precipitation
 #' @examples
-#' pcp$Precip.48 <- antecedent_precip(pcp, period=48, precip.name="Precip",
-#'                                    datetime.name="Datetime")
-antecedent_precip <- function(x, period=48, precip.name="Precip",
+#' pcp$Precip.48 <- antecedent_precip(pcp, period=48, delay=0,
+#'                                    datetime.name="Datetime",
+#'                                    value.name="Precip")
+antecedent_precip <- function(x, period=48, delay=0, fun=sum,
+                              value.name="Precip",
                               datetime.name="Datetime") {
-  check_hourly(x[[datetime.name]])
-  apcp <- stats::filter(x[, precip.name], rep(1, period), side = 1)
-  apcp <- as.numeric(apcp)
-  apcp
+  if (!inherits(x, 'zoo')) {
+#     x <- zoo.regular(dates = x[, datetime.name],
+#                      values = x[, value.name],
+#                      by = "hour", fill = NA)
+    x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
+  }
+
+  if (!is.regular_hourly(x)) {
+    stop("Timeseries is not regular (it may contain missing values or an
+         inconsistent frequency")
+  }
+
+  # check_hourly(x[[datetime.name]])
+
+  apcp <- zoo::rollapply(x, period, fun, align = 'right', fill = NA)
+  apcp <- lag(apcp, k = -1*delay, na.pad = TRUE)
+  coredata(apcp)
 }
 
 

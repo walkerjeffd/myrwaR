@@ -4,15 +4,19 @@
 \alias{antecedent_precip}
 \title{Computes antecedent precipitation}
 \usage{
-antecedent_precip(x, period = 48, precip.name = "Precip",
-  datetime.name = "Datetime")
+antecedent_precip(x, period = 48, delay = 0, fun = sum,
+  value.name = "Precip", datetime.name = "Datetime")
 }
 \arguments{
 \item{x}{data frame of hourly precipitation values}
 
-\item{period}{antecedent period in number of hours}
+\item{period}{duration of antecedent period in number of hours}
 
-\item{precip.name}{name of precipitation values column}
+\item{delay}{shift the antecedent period in number of hours}
+
+\item{fun}{function applied to each period (sum, max)}
+
+\item{value.name}{name of values column}
 
 \item{datetime.name}{name of date/time column}
 }
@@ -24,7 +28,8 @@ Computes antecedent precipitation as a rolling sum. Ensures the time series
 is regular and continuous
 }
 \examples{
-pcp$Precip.48 <- antecedent_precip(pcp, period=48, precip.name="Precip",
-                                   datetime.name="Datetime")
+pcp$Precip.48 <- antecedent_precip(pcp, period=48, delay=0,
+                                   datetime.name="Datetime",
+                                   value.name="Precip")
 }
 
