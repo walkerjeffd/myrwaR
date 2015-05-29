@@ -18,7 +18,8 @@
 #' pcp.zoo <- load_precip_from_xls(filepath, as.type='zoo')
 load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
                                  tz="EST", datetime.name="Datetime",
-                                 value.name="Precip", as.type=c("dataframe","zoo")) {
+                                 value.name="Precip",
+                                 as.type=c("dataframe","zoo")) {
   as.type <- match.arg(as.type)
 
   # read precip file
@@ -30,8 +31,16 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   # extract datetime and value columns
   x <- x[, c(datetime.name, value.name)]
 
+  # remove missing rows
+  x <- x[complete.cases(x), ]
+
   # parse datetimes
   x[, datetime.name] <- lubridate::ymd_hms(x[, datetime.name], tz = tz)
+
+  # check regular
+  if (!is.regular_hourly(x[, datetime.name])) {
+    warning("Precipitation timeseries is not continuous and hourly")
+  }
 
   if (as.type == "zoo") {
     x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
