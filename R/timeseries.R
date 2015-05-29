@@ -51,13 +51,20 @@ is.regular_hourly <- function(x) {
 
 #' Get water year from date
 #'
-#' Given vector of POSIXct values, returns vector of water years
+#' Returns water year of date vector for given starting month (default=October).
 #'
-#' @param x vector of POSIXct values
+#' @param x vector of dates
+#' @param start_month month that begins a water year
 #' @export
 #' @return numeric vector of water years
 #' @examples
-#' water_year(c(ymd("2000-09-30","2000-10-01","2000-10-02"))) # c(2000,2000,2001)
-water_year <- function(x) {
-  lubridate::year(lubridate::floor_date(x, unit="month") + months(3))
+#' water_year(c(ymd("2000-09-30","2000-10-01","2000-10-02")))
+water_year <- function(x, start_month=10) {
+  if (start_month == 1) {
+    return(lubridate::year(x))
+  } else {
+    return(ifelse(lubridate::month(x)>=start_month,
+                  lubridate::year(x)+1,
+                  lubridate::year(x)))
+  }
 }

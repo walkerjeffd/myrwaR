@@ -4,18 +4,20 @@
 \alias{water_year}
 \title{Get water year from date}
 \usage{
-water_year(x)
+water_year(x, start_month = 10)
 }
 \arguments{
-\item{x}{vector of POSIXct values}
+\item{x}{vector of dates}
+
+\item{start_month}{month that begins a water year}
 }
 \value{
 numeric vector of water years
 }
 \description{
-Given vector of POSIXct values, returns vector of water years
+Returns water year of date vector for given starting month (default=October).
 }
 \examples{
-water_year(c(ymd("2000-09-30","2000-10-01","2000-10-02"))) # c(2000,2000,2001)
+water_year(c(ymd("2000-09-30","2000-10-01","2000-10-02")))
 }
 
