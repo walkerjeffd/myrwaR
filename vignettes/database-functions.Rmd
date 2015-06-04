@@ -73,3 +73,14 @@ To close a connection, simply use the `close()` function:
 close(ch)
 ```
 
+# QAQC Procedures
+
+## Version Comparison
+
+The `compare_database()` function summarizes changes between to database versions. This function currently loads the Result, Visit, and Location tables and identifies any rows that have been added or removed. Note that this does not look at changes to values of existing rows, only row additions and removals.
+
+```{r compare}
+compare_database(old_path = "H:/Dropbox/Work/mystic/db/MysticDB_20150227.accdb",
+                 new_path = "H:/Dropbox/Work/mystic/db/MysticDB_20150529.accdb")
+```
+
