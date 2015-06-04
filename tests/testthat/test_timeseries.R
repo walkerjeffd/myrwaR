@@ -9,7 +9,7 @@ test_that("is.regular.hourly works with a zoo object", {
   expect_true(is.regular_hourly(x))
   expect_true(is.regular_hourly(x[1:2]))
   expect_false(is.regular_hourly(x[-5]))
-  expect_message(is.regular_hourly(x[-5]), 'Time series is not regular, check timeseries around')
+  expect_message(is.regular_hourly(x[-5]), "Timeseries is not regular, check timesteps around")
 })
 
 test_that("is.regular.hourly works with a vector of POSIXct", {
@@ -20,7 +20,7 @@ test_that("is.regular.hourly works with a vector of POSIXct", {
   expect_true(is.regular_hourly(x))
   expect_true(is.regular_hourly(x[1:2]))
   expect_false(is.regular_hourly(x[-5]))
-  expect_message(is.regular_hourly(x[-5]), 'Time series is not regular, check timeseries around')
+  expect_message(is.regular_hourly(x[-5]), "Timeseries is not regular, check timesteps around")
 })
 
 test_that("water_year works with POSIXct", {

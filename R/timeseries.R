@@ -41,7 +41,7 @@ is.regular_hourly <- function(x) {
 
   if (any(dt != 3600)) {
     check_at <- which(dt != 3600)[1]
-    message(paste0("Time series is not regular, check timeseries around ",
+    message(paste0("Timeseries is not regular, check timesteps around ",
                    x[check_at], " (index ", check_at, ")"))
     return(FALSE)
   } else {

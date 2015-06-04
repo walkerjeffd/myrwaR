@@ -168,8 +168,7 @@ antecedent_precip <- function(x, period=48, delay=0, fun=sum,
   }
 
   if (!is.regular_hourly(x)) {
-    stop("Timeseries is not regular (it may contain missing values or an
-         inconsistent frequency")
+    stop(paste0("Timeseries is not regular"))
   }
 
   apcp <- zoo::rollapply(x, period, fun, align = 'right', fill = NA)
