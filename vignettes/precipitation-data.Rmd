@@ -28,7 +28,9 @@ library(ggplot2)
 To load a precipitation dataset from an Excel file, use the `load_precip_from_xls()` function.
 
 ```{r load-xls}
-xls_path <- "H:/Dropbox/Work/mystic/_share_db/Processed/Precip/LoganPrecip.xlsx"
+# get path to example precip file provided within myrwaR package
+# this is a truncated version of the official MyRWA precipitation file
+xls_path <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
 prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
 str(prcp)
 ```
@@ -49,7 +51,7 @@ str(prcp_zoo)
 Data from USGS precipitation gages can be retrieved using the `load_precip_from_usgs()` function.
 
 ```{r load-prcp-usgs}
-prcp_usgs <- load_precip_from_usgs(startDate="2015-05-01", endDate="2015-05-10")
+prcp_usgs <- load_precip_from_usgs(start_date="2015-01-01", end_date="2015-01-10")
 str(prcp_usgs)
 ```
 
@@ -76,21 +78,40 @@ antecedent_precip(prcp[-100, ], period = 48)
 ```
 
 To create a data frame containing multiple antecedent precipitation columns,
-just save the result `antecedent_precip()` to new columns in the original data frame.
+just save the result `antecedent_precip()` to new columns in the original data
+frame.
 
 ```{r ante-prcp-col}
 prcp$Precip24 <- antecedent_precip(prcp, period = 24)
 prcp$Precip48 <- antecedent_precip(prcp, period = 48)
-summary(prcp)
 ```
 
-This figure shows the historical hourly (black), 24-hour antecedent (red), and 48-hour antecedent (blue) precipitation over 20 days of the timeseries.
+A delay can also be set for the antecedent precipitation, which shifts the
+period by some number of hours. For example, to get the 48 hours with a delay of
+6 hours:
+
+```{r ante-prcp-col-delay}
+prcp$Precip48.6 <- antecedent_precip(prcp, period = 48, delay = 6)
+```
+
+And finally, we can change the aggregation function to view other statistics
+of antecedent precipitation. For exmple, to see the maximum intensity over the
+previous 24 hours:
+
+```{r ante-prcp-col-max}
+prcp$Precip24.max <- antecedent_precip(prcp, period = 24, fun = max)
+```
+
+
+This figure shows the historical hourly (black), 24-hour antecedent sum (solid red) and maximum intensity (dashed red), 48-hour antecedent sum (blue), and 48-hour antecedent sum with 6 hour delay (green) precipitation over 30 days of the timeseries.
 
 ```{r plot-ante-prcp, fig.width=6, fig.height=4, warning=FALSE}
-ggplot(prcp[1:480, ], aes(Datetime)) +
+ggplot(prcp[1:(24*30), ], aes(Datetime)) +
   geom_line(aes(y=Precip)) +
   geom_line(aes(y=Precip24), color='red') +
+  geom_line(aes(y=Precip24.max), color='red', linetype=2) +
   geom_line(aes(y=Precip48), color='deepskyblue') +
+  geom_line(aes(y=Precip48.6), color='chartreuse3') +
   theme_bw()
 ```
 
