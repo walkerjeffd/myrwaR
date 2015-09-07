@@ -11,6 +11,7 @@ vignette: >
 
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+base_dir <- 'X:/MyRWA'
 ```
 
 The `myrwaR` package includes a set of functions for retrieving data from the MyRWA Water Quality Access Database. To load the package:
@@ -24,7 +25,7 @@ library(myrwaR)
 To connect to the database, use `db_connect()` and specify the path to the database, which returns a connection handler that is later used to retrieve the data.
 
 ```{r connect}
-ch <- db_connect(path = "H:/Dropbox/Work/mystic/db/MysticDB_20150227.accdb")
+ch <- db_connect(path = file.path(base_dir, "MysticDB_20150227.accdb"))
 ```
 
 ## Retrieving Data from Any Table
@@ -57,7 +58,7 @@ results <- db_results(ch)
 Finally, to connect to the database and retrieve the water quality data in one fell swoop, use the `load_wq()` function. The function will connect to the database, and then merge the `Result`, `Visit`, and `Location` database tables into a single dataframe.
 
 ```{r load-wq}
-wq <- load_wq(path = "H:/Dropbox/Work/mystic/db/MysticDB_20150227.accdb", sample_types = c("S"), exclude_flags = TRUE)
+wq <- load_wq(path = file.path(base_dir, "MysticDB_20150227.accdb"), sample_types = c("S"), exclude_flags = TRUE)
 str(wq)
 ```
 
@@ -80,7 +81,7 @@ close(ch)
 The `compare_database()` function summarizes changes between to database versions. This function currently loads the Result, Visit, and Location tables and identifies any rows that have been added or removed. Note that this does not look at changes to values of existing rows, only row additions and removals.
 
 ```{r compare}
-compare_database(old_path = "H:/Dropbox/Work/mystic/db/MysticDB_20150227.accdb",
-                 new_path = "H:/Dropbox/Work/mystic/db/MysticDB_20150529.accdb")
+compare_database(old_path = file.path(base_dir, "MysticDB_20150227.accdb"),
+                 new_path = file.path(base_dir, "MysticDB_20150529.accdb"))
 ```
 
