@@ -23,10 +23,7 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   as.type <- match.arg(as.type)
 
   # read precip file
-  ch <- RODBC::odbcConnectExcel2007(path)
-  x <- RODBC::sqlFetch(ch, sqtable = sheet.name,
-                       na.strings = "NA", as.is = TRUE)
-  close(ch)
+  x <- readxl::read_excel(path)
 
   # extract datetime and value columns
   x <- x[, c(datetime.name, value.name)]
