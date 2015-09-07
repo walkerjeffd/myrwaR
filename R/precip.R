@@ -31,8 +31,9 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   # remove missing rows
   x <- x[complete.cases(x), ]
 
-  # parse datetimes
+  # parse datetimes and round to nearest minute
   x[, datetime.name] <- lubridate::ymd_hms(x[, datetime.name], tz = tz)
+  x[, datetime.name] <- lubridate::round_date(x[, datetime.name], unit="minute")
 
   # check regular
   if (!is.regular_hourly(x[, datetime.name])) {
