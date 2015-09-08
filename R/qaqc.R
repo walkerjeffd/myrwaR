@@ -77,8 +77,14 @@ qaqc_table_results <- function(ch) {
 #'
 #' @param old_path Path to older database version
 #' @param new_path Path to newest database version
+#' @param log_file Path to output log file (optional)
 #' @export
-compare_database <- function(old_path, new_path) {
+compare_database <- function(old_path, new_path, log_file=NULL) {
+  if (!is.null(log_file)) {
+    # turn on file logging
+    sink(log_file)
+  }
+
   hr_line <- paste0(paste0(rep("=", 80), collapse=""), "\n")
 
   ch_old <- db_connect(old_path)
@@ -164,6 +170,11 @@ compare_database <- function(old_path, new_path) {
 
   close(ch_old)
   close(ch_new)
+
+  if (!is.null(log_file)) {
+    # turn off file logging
+    sink(NULL)
+  }
 
   invisible()
 }

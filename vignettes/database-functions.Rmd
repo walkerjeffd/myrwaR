@@ -85,3 +85,10 @@ compare_database(old_path = file.path(base_dir, "MysticDB_20150227.accdb"),
                  new_path = file.path(base_dir, "MysticDB_20150529.accdb"))
 ```
 
+The `compare_database()` function can also save the output to a text file by setting the `log_file` argument.
+
+```{r compare-log, eval=FALSE}
+compare_database(old_path = file.path(base_dir, "MysticDB_20150227.accdb"),
+                 new_path = file.path(base_dir, "MysticDB_20150529.accdb"),
+                 log_file = file.path(base_dir, 'compare_20150227_20150529.txt'))
+```

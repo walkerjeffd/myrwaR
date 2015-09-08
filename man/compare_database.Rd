@@ -4,12 +4,14 @@
 \alias{compare_database}
 \title{Compare two database versions and summarize differences}
 \usage{
-compare_database(old_path, new_path)
+compare_database(old_path, new_path, log_file = NULL)
 }
 \arguments{
 \item{old_path}{Path to older database version}
 
 \item{new_path}{Path to newest database version}
+
+\item{log_file}{Path to output log file (optional)}
 }
 \description{
 Loads data from two separate databases and prints a summary of which records
