@@ -11,7 +11,7 @@ vignette: >
 
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
-base_dir <- 'X:/MyRWA'
+base_dir <- 'C:/Users/Jeff/Dropbox/Work/mystic/db'
 ```
 
 The `myrwaR` package includes a set of functions for retrieving data from the MyRWA Water Quality Access Database. To load the package:
