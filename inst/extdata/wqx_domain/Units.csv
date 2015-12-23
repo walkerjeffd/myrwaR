@@ -1,0 +1,365 @@
+Measure Unit Code,Description
+#/100 gal,Number per 100 gallons
+#/100ml,Number per hundred milliliters
+#/500 ml,Number per 500 milliters
+#/acre,Number per acre
+#/cm2,Number per square centimeter
+#/cm3,Number per cubic centimeter
+#/dl,Number per deciliter
+#/ft2,Number per square foot
+#/ha,Number per hectare
+#/in2,Number per square inch
+#/km2,Number per square kilometer
+#/l,Number per liter
+#/m2,Number per square meter
+#/m3,Number per cubic meter
+#/mi2,Number per square mile
+#/ml,Number per milliliter
+#/yd2,Number per square yard
+%,Percent
+% by vol,Percent by volume
+% by wt,Percent by weight
+% CaCO3,Percent calcium carbonate
+% Cover,Percent Cover
+% sediment,% target/clean sed mix which produces response
+0/00,Parts per thousand
+ac,Acres
+ac-ft,Acre-feet
+ADMI value,American Dye Manufacturers Institute Color Value
+amps,"Electrical current, amperes"
+Angst,Angstroms
+atm,"Pressure, atmospheres"
+AU,"Turbidity, Attenuation Unit"
+beaufort,wind force (beaufort unit)
+BTU,"Energy, British Thermal Units"
+BU,"Turbidity, Backscatter Unit"
+cal,"Energy, calories"
+cfm,Cubic feet per minute
+cfs,Cubic feet per second
+CFU,Colony Forming Units
+cfu/100g,Colony Forming Units per 100 grams
+cfu/100ml,Colony Forming Units per 100 Milliliters
+cfu/10ml,Colony Forming Units per 10 Milliliters
+cm,centimeters
+cm/sec,Centimeters per second
+cm2,Square centimeters
+cm3,Cubic centimeters
+cm3/hr,Cubic centimeters per hour
+cm3/l,cubic centimeters per liter
+cm3/min,Cubic centimeters per minute
+cm3/sec,Cubic centimeters per second
+count,count
+d/h/m/s,days/hours/minutes/seconds
+days,Days
+Deg,"Direction or angle, degrees"
+deg C,Degrees Celsius (Centigrade)
+deg F,Degrees Fahrenheit
+deg K,Degrees Kelvin
+dl,Deciliters
+dm,decimeters
+dm2,Square decimeters
+dpm/g,decay per minute per gram
+drips/min,Drips per minute
+drops,Drops
+eq/L,equivalents per Liter
+FAU,"Turbidity, Formazine Attenuation Units"
+FBU,"Turbidity, Formazin Backscatter Unit"
+fc/ft2,"Light Intensity, foot candles per square foot"
+fibers/l,Fibers per liter
+FNMU,"Turbidity, Formazin Nephelometric Multibeam Unit"
+FNRU,"Turbidity, Formazin Nephelometric Ratio Unit"
+FNU,"Turbidity, Formazin Nephelometric Unit"
+fraction,fraction of sample total
+ft,feet
+ft-candles,"Light Intensity, foot candles"
+ft-lbs,"Energy, foot pounds"
+ft/day,Feet per day
+ft/min,Feet per minute
+ft/sec,Feet per second
+ft2,Square feet
+ft3,Cubic feet
+ft3/day,Cubic feet per day
+ft3/sec,cubic feet per second
+FTU,"Turbidity, Formazin Turbidity Units"
+g,grams
+g/cm2,grams per square centimeters
+g/cm3,grams per cubic centimeter
+g/day,Grams per day
+g/hr,Grams per hour
+g/kg,grams per kilogram
+g/l,Grams per liter
+g/m2,grams per square meter
+g/m2/day,grams per square meter per day
+g/m2/hr,grams per square meter per hour
+g/m3,grams per cubic meter
+g/m3/day,grams per cubic meter per day
+g/m3/hr,grams per cubic meter per hour
+g/min,Grams per minute
+g/ml,Grams per milliliter
+g/sec,Grams per second
+gal,Fluid gallons
+gal/day,Gallons per day
+gal/hr,Gallons per hour
+gal/min,Gallons per minute
+gal/sec,Gallons per second
+gpg,grains per gallon
+gpm/ft,"Drawdown capacity, gallons per minute per foot"
+ha,Hectares
+hours,Hours
+hp,"Power, horsepower"
+Imp gal,Imperial gallons
+in,inches
+in/day,inches per day
+in2,Square inches
+in3,Cubic inches
+inH2O,"Pressure, inches of water"
+inHg,"Pressure, inches of mercury"
+JCU,"Light Intensity, Jackson Candle Units"
+Joules,"Energy, Joules"
+JTU,"Turbidity, Jackson Turbidity Units"
+kcal,"Energy, kilocalories"
+kg,kilograms
+kg/m2,kilograms per square meter
+kg/m3,kilograms per cubic meter
+kg/t CaCO3,Kilograms per Ton calcium carbonate
+km,kilometers
+km/hr,Kilometers per hour
+km/sec,Kilometers per second
+km2,Square kilometers
+knots,Nautical miles per hour
+kw,"Power, kilowatts"
+l,Liters
+l/day,Liters per day
+l/hr,liters per hour
+l/min,liters per minute
+l/sec,liters per second
+Langleys,"Energy Intensity, Langleys (cal/sq cm)"
+lb,pounds
+lb/acre/yr,pounds per acre per year
+lb/day,Pounds per day
+lb/ft3,pounds per cubic foot
+lb/hr,Pounds per hour
+lb/in,"Tension, pounds per inch displacement"
+lb/min,Pounds per minute
+lb/sec,Pounds per second
+lm/ft2,"Light Intensity, lumens per square foot"
+lumens,"Light Intensity, lumens"
+m,meters
+m/sec,Meters per second
+m/y,month/year
+m2,Square meters
+m2/km2,Square meters per square kilometers
+m3,Cubic meters
+m3/hr,Cubic meters per hour
+m3/min,Cubic meters per min
+m3/sec,Cubic meters per second
+meq/L,Milli-equivalents per Liter
+metric ton,metric tons
+MFL,Million Fibers per Liter fiber size > 10u
+mg,milligrams
+mg/cm2,Milligrams per square centimeters
+mg/cm3,milligrams per cubic centimeter
+mg/day,Milligrams per day
+mg/g,milligrams per gram
+mg/hr,Milligrams per hour
+mg/kg,milligrams per kilogram
+mg/l,milligrams per liter
+mg/l CaCO3,Milligrams per liter calcium carbonate
+mg/m2,milligrams per square meter
+mg/m2/day,milligrams per square meter per day
+mg/m2/hr,milligrams per square meter per hour
+mg/m3,milligrams per cubic meter
+mg/m3/day,milligrams per cubic meter per day
+mg/m3/hr,milligrams per cubic meter per hour
+mg/min,Milligrams per minute
+mg/ml,Milligrams per milliliter
+mg/sec,Milligrams per second
+mgal/mnth,Millions of gallons per month
+mgal/year,Millions of gallons per year
+mgd,Millions of gallons per day
+mho/cm,"Electrical conductivity, mhos per centimeter"
+mi,miles
+mi2,Square miles
+micron,micron
+Min,"Direction or angle, minutes"
+minutes,Minutes
+ml,Milliliters
+ml/l,Milliliters per liter
+mm,millimeters
+mm2,Square millimeters
+mm3/l,cubic millimeters per liter
+mmH2O,"Pressure, millimeters of water"
+mmHg,"Pressure, millimeters of mercury"
+mmhos/cm,"Electrical conductivity, millimhos     per centimeter"
+mmol/kg,Millimoles per kilogram
+mmol/m2/dy,Millimoles per square meter per day
+mmol/m2/hr,Millimoles per square meter per hour
+Molal,Molal
+Molar,Molar
+Mole/l,Moles per liter
+months,Months
+mosm/kg,milliosmole per kg
+mph,Miles per hour
+MPN,Most Probable Number
+MPN/100g,Most Probable Number per 100 grams
+MPN/100ml,Most Probable Number per 100 milliliters
+MPN/g,Most Probable Number per gram
+mrem/day,millirems per day
+mrem/yr,millirems per year
+ms,Milliseconds
+mS/cm,Milli-Siemens per Centimeter
+MT/km2/yr,metric tons per square kilometer per year
+mV,Millivolts
+mw,"Power, megawatts"
+nCi/L,Nanocuries per liter
+ng,nanograms
+ng/cm3,nanograms per cubic centimeter
+ng/g,nanograms per gram
+ng/kg,nanograms per kilogram
+ng/l,nanograms per liter
+ng/m2,nanograms per square meter
+ng/m3,nanograms per cubic meter
+ng/ml,nanograms per milliliter
+nm,nanometers
+nm-1,inverse nanometers
+nmi,nautical miles
+nmi2,Square nautical miles
+nmol/g DW/h,nanomoles per gram dry weight per hour
+nmol/hr/g,nanomoles per hour per gram
+nmol/kg,Nano-moles per Kilogram
+None,None
+Normal,Normal
+NTMU,"Turbidity, Nephelometric Turbidity Multibeam Unit"
+NTRU,"Turbidity, Nephelometric Turbidity Ratio Unit"
+NTU,"Turbidity, Nephelometric Turbidity Units"
+nu,number or gage
+oz,ounces
+Pascal,"Pressure, Pascal units"
+pCi/g,pico-Curies per gram
+pCi/L,pico-Curies per Liter
+pCi/m2,pico-Curies per square meter
+pCi/m3,pico-Curies per cubic meter
+pCi/ml,pico-Curies per milliliter
+PCU,Platinum Cobalt Units (color)
+per m,per meter
+pfu/100ml,Plaque Forming Units per 100 Milliliters
+pg,picograms
+pg/cm3,picograms per cubic centimeter
+pg/g,picograms per gram
+pg/kg,picograms per kilogram
+pg/l,picograms per liter
+pg/m2,picograms per square meter
+pg/m3,picograms per cubic meter
+Plate cnt,Plate Count
+ppb,parts per billion
+ppm,parts per million
+ppt,Parts per trillion
+ppth,parts per thousand
+psi,"Pressure, pounds per square inch"
+PSS,Practical Salinity Scale
+pt,Fluid pints
+qt,Fluid quarts
+RLU,relative light units
+S/m,siemens per meter
+Sec,"Direction or angle, seconds"
+seconds,Seconds
+T.U.,Tritium Unit
+tCaCO3/Kt,Tons of calcium carbonate per kiloton
+TON,Threshold Odor Number
+tons,short tons
+tons/ac ft,Tons per acre feet
+tons/day,Tons per day
+Torr,"Pressure, Torr units(vacuum)"
+TU,"Toxic Units, dividing 100% by the LC50 (% effluent"
+TUc,Toxic Unit chronic
+uE/m2/sec,"Photosynth. radiation,micro-Einsteins/sq.meter/sec"
+ueq/L,Micro-equivalents per Liter
+ug,micrograms
+ug/cart,microgram per cartridge
+ug/cm2,micrograms per square centimeters
+ug/cm2/day,Micrograms per square centimeter per day
+ug/cm3,micrograms per cubic centimeter
+ug/g,micrograms per gram
+ug/g DW/hr,micrograms per gram dry weight per hour
+ug/hr/g,micrograms per hour per gram
+ug/kg,micrograms per kilogram
+ug/l,micrograms per liter
+ug/m2,micrograms per square meter
+ug/m3,micrograms per cubic meter
+um3/cm2,cubic microns per square cm
+um3/l,cubic microns per liter
+um3/ml,cubic microns per ml
+umho/cm,"Electrical conductivity, micro-mhos per centimeter"
+umol,micro mole
+umol/g,micromoles per gram
+umol/m2/s,micro moles per square meter per second
+umol/S/m2,micro moles per siemen per square meter
+units/cm,"Units per centimeter, for UV absorbance"
+uS/cm,Micro-Siemens per Centimeter
+volts,"Electro-motive force, volts"
+Watts,"Power, Watts"
+weeks,Weeks
+y/m/d,year/month/day
+yd,yards
+yd2,Square yards
+yd3,Cubic yards
+years,Years
+#/10l,Number per 10 liters
+bbl,"Barrel equals 31.50 gallons, 119.24 liters"
+lm/m2,"Light Intensity, lumens per square meter"
+mCi/km2,milliCuries per square kilometer
+mm3,Cubic millimeter
+kgal,1000 gallons
+Mgal,Million gallons
+mmol/L,millimoles per liter
+umol/L,micromoles per liter
+mEq/100g,milli-equivalents per 100 gram
+lbs/kgal,pounds/kilogallon
+ohm,ohm meter
+pmc,percent modern carbon
+cal/cm2/hr,calories per square centimeter per hour
+dpm/100l,disintegrations per minute per 100 liters
+grains,Grains
+Granules,Granule count of substance in pan or tailings
+umho,"Electrical conductance, micro-mhos"
+% recovery,percent of recovery
+cfu/gdw,Colony Forming Units per gram dryweight
+ng/cm2,nanograms per square centimeter
+Millimolar,Millimolar
+umol/kg,micromoles per kilogram
+KOhm/cm,Kilo ohm per centimeter
+PSU,Practical Salinity Scale
+millibar,millibar
+decibar,decibar
+bar,bar
+MSC,Mean Standing Crop
+uW/cm2,micro-watts per square centimeter
+cfm,Cubic feet per minute
+CCE/100ml,Calibrator Cell Equivalents per 100 Milliliters
+#/cm,number per centimeter
+L/mg-cm,Liters per milligram-centimeter
+cfs,Cubic feet per second
+phi,Krumbein Phi Scale
+fg/kg,femtogram/kilogram
+Kg/m3-1000,Kilograms per cubic meter minus one thousand
+mmol/mg,millimoles per milligram
+ug/m2-hr,micrograms per squared meter per hour
+mg/m2-hr,milligrams per squared meter per hour
+mg/m2-day,milligrams per squared meter per day
+ug/cm2-day,micrograms per squared centimeter per day
+#/100L,number per 100 liters
+ng/m2-day,nanograms per squared meter per day
+pmol/mg/min,picomoles per milligram per minute
+% passing,percent passing seive
+per mil,per million
+counts/sec,counts per second
+code,Please see http://waterdata.usgs.gov/nwis/qwdata?codes_table26_help#62955
+% saturatn,% saturation
+gpm,gallons per minute
+RmV,Relative millivolts
+ml/min,milliliters per minute
+cfu/ml,Colony Forming Units per Milliliters
+ml/l/hr,Milliliters per liter per hour
+% solids,percent of solids
+uL,Microliters
+ohm-cm,"resistivity, ohms - centimeter (??cm)"

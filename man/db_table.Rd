@@ -4,10 +4,14 @@
 \alias{db_table}
 \title{Load table from database}
 \usage{
-db_table(ch, table_name)
+db_table(ch, table_name, ...)
 }
 \arguments{
 \item{ch}{Connection handle to database}
+
+\item{table_name}{Table name}
+
+\item{...}{Additional arguments passed to sqlFetch()}
 }
 \value{
 A dataframe containing the database table

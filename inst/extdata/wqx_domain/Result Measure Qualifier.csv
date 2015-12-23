@@ -1,0 +1,116 @@
+Code,Description
+B,Detection in blank: 
+BH,Detection in blank. Holding time exceeded. 
+BU,"Detection in blank.  Not Detected: The analyte was analyzed for, but was not detected at a level greater than or equal to the level of the adjusted Contract Required Quantitation Limit (CRQL) for sample and method. "
+D,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required.  "
+DB,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required.  Detection in blank."
+DH,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required. Holding time exceeded"
+DJ,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required. Estimated:The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample."
+DR,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required. Rejected: The sample results are unusable due to the quality of the data generated because certain criteria were not met. The analyte may or may not be present in the sample."
+DU,"Contract Required Quantitation Limit (CRQL) ... Not Detected: The analyte was analyzed for, but was not detected at a level greater than or equal to the level of the adjusted Contract Required Quantitation Limit (CRQL) for sample and method. "
+EE,Identifies compounds whose concentration exceed the calibration range addition of the instrument for that specific analysis.
+H,Holding time exceeded: 
+HBJ,Holding time exceeded.  Detection in blank.  Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample.
+HL,Holding time exceeded.  Lowest available reporting limit for the analytical method used.
+HLBL,"high labeled compound recovery in sample, estimated value, estimated value"
+HMSR,"high matrix spike recovery, potential high bias"
+HNRO,"high native analyte recovery in OPR (or LCS), potential high bias"
+HSSR,"high surrogate spike recovery, potential high bias"
+HVER,"high calibration verification standard recovery, estimated value"
+ITNA,Incubation time not attained
+ITNM,Incubation temperature not maintained
+J,Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample.
+J+,Estimated: The analyte was positively identified and the associated numerical value... +++.
+JB,Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample.  Detection in blank.
+JH,Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample. Holding time exceeded. 
+JL,Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample.  Lowest available reporting limit for the analytical method used.
+KK,True bacterial concentration is assumed to be less than the reported value. 
+L,Lowest available reporting limit for the analytical method used.
+LL,True bacterial concentration is assumed to be greater than the reported value. 
+LLBL,"low labeled compound recovery in sample, estimated value"
+LLRO,"low labeled compound recovery in the OPR (or LCS), estimated value"
+LMSR,"low matrix spike recovery, potential low bias"
+LNRO,"low native analyte recovery in OPR (or LCS), potential low bias"
+LOPR,"low OPR (or LCS) recovery, potential low bias"
+LVER,"low calibration verification standard recovery, potential low bias"
+MTRX,"possible matrix interference, estimated value"
+NCNF,"not confirmed or not found, estimated value"
+NLBL,"no labeled compound recovery in sample, rejected"
+NLRO,"no labeled compound recovery in OPR (or LCS), rejected"
+NMSR,"no matrix spike recovery, rejected"
+NNRO,"no native analyte recovery in OPR (or LCS), rejected"
+NOPR,"no OPR (or LCS) recovery, rejected"
+NVER,"no calibration verification standard recovery, rejected"
+R,Rejected: The sample results are unusable due to the quality of the data generated because certain criteria were not met. The analyte may or may not be present in the sample. 
+RMAX,result is a maximum value
+RNAF,result no affected by noted QC issue
+RNF2,"results of 2 columns not within factor of 2, estimated value"
+RNON,result reported as non-detect due to blank contamination
+RPDX,"RPD is MS/MSD pair exceeds criterion, estimated value"
+U,"Not Detected: The analyte was analyzed for, but was not detected at a level greater than or equal to the level of the adjusted Contract Required Quantitation Limit (CRQL) for sample and method. "
+UH,"Not Detected: The analyte was analyzed for, but was not detected at a level greater than or equal to the level of the adjusted Contract Required Quantitation Limit (CRQL) for sample and method. Holding time exceeded."
+UJ,Not Detected/Estimated: The analyte was not detected at a level greater than or equal to the adjusted CRQL or the reported adjusted CRQL is approximate and may be inaccurate or imprecise. 
+FEQ,Field Equipment Questionable
+E,Concentration of analyte being analyzed exceeded calibration range of instrument.
+A,Compound not analyzed
+ANR,Analyte Not Requested
+C,Presence of compound may be due to contamination of sample during laboratory processing
+EFAI,Equipment failure
+F,Estimated value: compound failed initial calibration check (CCC) or QC criteria
+I,Estimated value; compound failed initial calibration value
+J-MI,Approximate value due to matrix interference
+J-QC,Approximate value due to quality control problems
+J-R,Approximate value result is below the reporting level but greater than the method detection limit
+JHTF,Holding Time Exceeded in the Field
+K,Value below the detection Limit.  For BOD: depletion is less than 1.0
+N,Presumptive evidence of a nontarget compound
+NA,Not Applicable
+NAP,No Analysis Possible
+NRP,No result possible
+QNS,Quantity Not Sufficient
+J-RH,Approximate value result is below the reporting level but greater than the method detection limit. Holding time exceeded.
+J-RB,Approximate value result is below the reporting level but greater than the method detection limit. Detection in blank.
+GT,The listed result is greater than the upper quantitation limit for either the analytical method or the meter used for the measurement. Equivalent to the Legacy STORET Remark Code of L: Actual Value is known to be greater than the value given.
+DL,Not Detected: The analyte was not detected at a level >= to the Method Detection Limit for the analysis.
+Q,The result did not pass the lab quality checks and there was an insufficient amount of the sample for re-analysis.
+UQ,"Not Detected: The analyte was not detected at a level >= to the Reporting Level for the analysis. Also, the result did not pass the lab quality checks and there was an insufficient amount of the sample for re-analysis."
+JRHT,"Estimated value, between detection limit and reporting limit and exceeded holding time"
+JRQC,"Estimated value, between detection limit and reporting limit and QC problems"
+KBJHQ,"Estimated value, not detected, compound also detected in LRB, holding time exceeded, QC problems"
+KBJQC,"Estimated value, not detected, compound also detected in LRB, QC problems"
+KJHQC,"Estimated value, not detected, holding time exceeded and QC problems"
+KJHT,"Estimated value, not detected and exceeded holding time"
+KJQC,"Estimated value, not detected and QC problems"
+KN,"Not detected, presumptive evidence of nontarget compound"
+KNBJQ,"Estimated value, not detected, compound also detected in LRB, presumptive evidence of nontarget compound, QC problems"
+KNJHT,"Estimated value, not detected, presumptive evidence of nontarget compound, holding time exceeded"
+KNJQC,"Not detected, presumptive evidence of non-target compound, estimated value, QC problems"
+LBJQC,"Estimated value, greater than quantitation limit, compound also detected in LRB, QC problems"
+LJHQC,"Estimated value, greater than quantitation limit, holding time exceeded, QC problems"
+LJQC,"Estimated value, greater than quantitation limit and QC problems"
+LNJQC,"Estimated value, greater than quantitation limit, presumptive evidence of nontarget compound, QC problems"
+NB,Presumptive evidence of non-target compound; detected in blank
+NBJQC,"Estimated value, presumptive evidence of nontarget compound, compound also detected in LRB, QC problems"
+NJHT,"Estimated value, presumptive evidence of nontarget compound, holding time exceeded"
+NJQC,"Estimated value, presumptive evidence of nontarget compound, QC problems"
+NL,"Estimated value, presumptive evidence of nontarget compound, greater than quantitation limit"
+T,Hardness by Calculation Method - Standard Methods 2340B - 19th Ed 
+JRHQC,"Estimated value, between detection limit and reporting limit, holding time exceeded, QC problems"
+JMQC,"Estimated value, matrix interference, QC problems"
+JHTQC,"Estimated value, exceeded holdinlg time and QC problems"
+J-HT,Approximate value analysis exceeded the holding time 
+BJQC,"Estimated value, compound also detected in LRB, QC problems"
+BJHQC,"Estimated value, compound also detected in LRB, holding time exceeded, QC problems"
+BJHT,"Estimated value, compound also detected in LRB, holding time exceeded"
+DHJ,"Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required. Holding time exceeded. Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample"
+NJ,"Estimated value, presumptive evidence of nontarget compound"
+KJ,"Estimated value, not detected"
+HICC,Initial calibration criteria not met – high
+LICC,Initial calibration criteria not met – low
+TOC,Temperature outside of criteria
+SSR,Surrogate standard acceptance criteria not met
+NRO,Control sample acceptance criteria not met
+LSSR,Surrogate standard acceptance criteria not met – low
+HMSD,Matrix spike duplicate acceptance criteria not met – high
+ISAC,Internal standard acceptance criteria not met
+MSR,Matrix spike acceptance criteria not met

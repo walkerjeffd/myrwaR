@@ -4,10 +4,12 @@
 \alias{db_results}
 \title{Load results table}
 \usage{
-db_results(ch)
+db_results(ch, ...)
 }
 \arguments{
 \item{ch}{Open connection handle to database}
+
+\item{...}{Additional arguments passed to db_table()}
 }
 \value{
 Data frame of water quality data

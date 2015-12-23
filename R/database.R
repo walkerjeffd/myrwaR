@@ -18,15 +18,17 @@ db_connect <- function(path) {
 #' Loads the water quality data from the Result table merged with Visit table
 #'
 #' @param ch Open connection handle to database
+#' @param ... Additional arguments passed to db_table()
 #' @return Data frame of water quality data
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
 #' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 #' wq <- db_results(ch)
-db_results <- function(ch) {
-  tbl_result <- db_table(ch, "Result")
-  tbl_visit <- db_table(ch, "Visit")
+db_results <- function(ch, ...) {
+  tbl_result <- db_table(ch, "Result", ...)
+  tbl_visit <- db_table(ch, "Visit", ...)
+  tbl_visit <- dplyr::rename(tbl_visit, VisitComment=Comment)
 
   df <- merge(tbl_result, tbl_visit, by.x="VisitID", by.y="ID", all.x=T)
 
@@ -47,14 +49,16 @@ db_results <- function(ch) {
 #' Loads the data from a table in the database
 #'
 #' @param ch Connection handle to database
+#' @param table_name Table name
+#' @param ... Additional arguments passed to sqlFetch()
 #' @return A dataframe containing the database table
 #' @export
 #' @examples
 #' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
 #' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
 #' tbl.Results <- db_table(ch, "Results")
-db_table <- function(ch, table_name) {
-  df <- RODBC::sqlFetch(ch, table_name)
+db_table <- function(ch, table_name, ...) {
+  df <- RODBC::sqlFetch(ch, table_name, ...)
   df
 }
 
