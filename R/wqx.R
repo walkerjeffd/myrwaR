@@ -213,6 +213,10 @@ wqx_results <- function(ch, projects, locations=NULL, start_date='1900-01-01', e
      ResultDetectionQuantitationLimitType=plyr::revalue(Qualifier, detection_quantitation_types),
      ResultValue=ifelse(!is.na(ResultDetectionCondition), NA, ResultValue))
 
+  # set detection condition to Not Reported for any remaining missing values
+  idx <- which(is.na(res$ResultValue) & is.na(res$ResultDetectionCondition))
+  res[idx, 'ResultDetectionCondition'] <- 'Not Reported'
+
   # convert units to WQX domain
   units <- c('CFU/100ml'='cfu/100ml',
              'mg/l'='mg/l',
@@ -223,6 +227,10 @@ wqx_results <- function(ch, projects, locations=NULL, start_date='1900-01-01', e
              'ppt'='ppth',
              'NTU'='NTU')
   res <- dplyr::mutate(res, ResultUnit=plyr::revalue(Units, units))
+
+  # set pH units to None
+  idx <- which(res$CharacteristicName=='pH')
+  res[idx, 'ResultUnit'] <- 'None'
 
   res <- dplyr::mutate(res,
                        DbCharacteristicName=CharacteristicName,
@@ -301,6 +309,26 @@ wqx_validate_results <- function(x) {
     }
   }
   cat('OK\n')
+
+  cat('Checking results have units when value is not empty...')
+  idx <- which(!is.na(x[['ResultValue']]))
+  if (any(is.na(x[idx, 'ResultUnit']))) {
+    cat('FAIL\n')
+    warning('Missing value(s) in ResultUnit when ResultValue is not empty')
+    failed <- TRUE
+  } else {
+    cat('OK\n')
+  }
+
+  cat('Checking results have detection condition when value is empty...')
+  idx <- which(is.na(x[['ResultValue']]))
+  if (any(is.na(x[idx, 'ResultDetectionCondition']))) {
+    cat('FAIL\n')
+    warning('Missing value(s) in ResultDetectionCondition when ResultValue is empty')
+    failed <- TRUE
+  } else {
+    cat('OK\n')
+  }
 
   cat('Checking results against WQX domain values\n')
 
