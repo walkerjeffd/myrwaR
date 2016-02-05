@@ -23,7 +23,7 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   as.type <- match.arg(as.type)
 
   # read precip file
-  x <- readxl::read_excel(path)
+  x <- readxl::read_excel(path, sheet = sheet.name)
 
   # extract datetime and value columns
   x <- x[, c(datetime.name, value.name)]
@@ -32,16 +32,16 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   x <- x[complete.cases(x), ]
 
   # parse datetimes and round to nearest minute
-  x[, datetime.name] <- lubridate::ymd_hms(x[, datetime.name], tz = tz)
-  x[, datetime.name] <- lubridate::round_date(x[, datetime.name], unit="minute")
+  x[, datetime.name] <- lubridate::ymd_hms(x[[datetime.name]], tz = tz)
+  x[, datetime.name] <- lubridate::round_date(x[[datetime.name]], unit="minute")
 
   # check regular
-  if (!is.regular_hourly(x[, datetime.name])) {
+  if (!is.regular_hourly(x[[datetime.name]])) {
     warning("Precipitation timeseries is not continuous and hourly")
   }
 
   if (as.type == "zoo") {
-    x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
+    x <- zoo::zoo(x = x[[value.name]], order.by = x[[datetime.name]])
   }
 
   x
@@ -162,7 +162,7 @@ antecedent_precip <- function(x, period=48, delay=0, fun=sum,
                               value.name="Precip",
                               datetime.name="Datetime") {
   if (!inherits(x, 'zoo')) {
-    x <- zoo::zoo(x = x[, value.name], order.by = x[, datetime.name])
+    x <- zoo::zoo(x = x[[value.name]], order.by = x[[datetime.name]])
   }
 
   if (!is.regular_hourly(x)) {
@@ -194,7 +194,7 @@ append_weather <- function(wq, precip, period=48, precip.threshold=0.25,
   if (!(anteprecip.name %in% names(precip))) {
     cat("Computing antecedent precip...")
     precip[, anteprecip.name] <- antecedent_precip(precip, period=period,
-                                                   precip.name=precip.name)
+                                                   value.name=precip.name)
     cat("done\n")
   }
 
