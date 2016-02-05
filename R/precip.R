@@ -130,7 +130,7 @@ fill_precip_with_usgs <- function(x, start_date=NULL, end_date=NULL,
     return(x)
   }
 
-  usgs <- usgs[which(usgs[, datetime.name] > max(x[, datetime.name])), ]
+  usgs <- usgs[which(usgs[[datetime.name]] > max(x[[datetime.name]])), ]
 
   x_new <- dplyr::rbind_list(x, usgs)
 

@@ -22,7 +22,7 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
     stop(paste0("Could not find value column called ", value.name))
   }
 
-  if (!is.regular_hourly(x[, datetime.name])) {
+  if (!is.regular_hourly(x[[datetime.name]])) {
     stop("Timeseries is not hourly and continuous")
   }
 
@@ -32,10 +32,10 @@ assign_precip_events <- function(x, datetime.name="Datetime", value.name="Precip
   x <- dplyr::select_(x, "Datetime"=datetime.name, "Value"=value.name)
 
   # make sure df is sorted by datetime
-  x <- x[order(x[, "Datetime"]), ]
+  x <- x[order(x[["Datetime"]]), ]
 
   # compute runs of non-zero values
-  x_rle <- rle(x[, "Value"] > 0)
+  x_rle <- rle(x[["Value"]] > 0)
 
   # assign boolean flag to indicate wet events
   x$IsWet <- rep(x_rle$lengths * (x_rle$values | x_rle$lengths < interevent.period),
@@ -89,8 +89,8 @@ events.summary <- function(df, datetime.name="DATETIME", value.name="VALUE") {
   if (!(value.name %in% names(df))) {
     stop("Unable to find value column in dataframe")
   }
-  df$DATETIME <- df[, datetime.name]
-  df$VALUE <- df[, value.name]
+  df$DATETIME <- df[[datetime.name]]
+  df$VALUE <- df[[value.name]]
   event <- ddply(subset(df, !is.na(EVENT_ID)), c("EVENT_ID"), summarise,
                  DURATION=length(DATETIME),
                  START=min(DATETIME),

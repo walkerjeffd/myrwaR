@@ -19,7 +19,7 @@ In order to extract data from the water quality database, first create a connect
 
 ```{r db-connect}
 library(myrwaR)
-ch <- db_connect('C://Users/Jeff/Dropbox/Work/mystic/db/MysticDB_20151223.accdb')
+ch <- db_connect('C://Users/Jeff/Dropbox/Hopper/MysticDB_20160204.accdb')
 ```
 
 # Projects Table

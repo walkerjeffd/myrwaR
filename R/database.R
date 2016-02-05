@@ -28,7 +28,6 @@ db_connect <- function(path) {
 db_results <- function(ch, ...) {
   tbl_result <- db_table(ch, "Result", ...)
   tbl_visit <- db_table(ch, "Visit", ...)
-  tbl_visit <- dplyr::rename(tbl_visit, VisitComment=Comment)
 
   df <- merge(tbl_result, tbl_visit, by.x="VisitID", by.y="ID", all.x=T)
 
