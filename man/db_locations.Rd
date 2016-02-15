@@ -17,8 +17,7 @@ Retrieves the station locations from the database by merging Location,
 WaterBody, and LocationType tables
 }
 \examples{
-directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 locations <- db_locations(ch)
 }
 

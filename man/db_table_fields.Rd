@@ -17,8 +17,7 @@ A dataframe containing the column names and types for the specified
 Retrieves the field names and types from a given database table
 }
 \examples{
-directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 schema_results <- db_table_fields(ch, table_name = "Results")
 }
 

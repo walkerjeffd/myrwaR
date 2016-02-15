@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{db_list_tables}
 \alias{db_list_tables}
-\title{Retrieve table names in database}
+\title{List of table names in database}
 \usage{
 db_list_tables(ch)
 }
@@ -16,8 +16,7 @@ A character vector of table names
 Retrieves a character vector of table names
 }
 \examples{
-directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 table_names <- db_list_tables(ch)
 }
 

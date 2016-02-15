@@ -2,32 +2,34 @@
 % Please edit documentation in R/precip.R
 \name{antecedent_precip}
 \alias{antecedent_precip}
-\title{Computes antecedent precipitation}
+\title{Compute antecedent precipitation}
 \usage{
 antecedent_precip(x, period = 48, delay = 0, fun = sum,
   value.name = "Precip", datetime.name = "Datetime")
 }
 \arguments{
-\item{x}{data frame of hourly precipitation values}
+\item{x}{Dataframe of hourly precipitation values}
 
-\item{period}{duration of antecedent period in number of hours}
+\item{period}{Duration of antecedent period as hours (default=48)}
 
-\item{delay}{shift the antecedent period in number of hours}
+\item{delay}{Shift in the antecedent period as hours (default=0)}
 
-\item{fun}{function applied to each period (sum, max)}
+\item{fun}{Function applied to each period (e.g. sum, max)}
 
-\item{value.name}{name of values column}
+\item{value.name}{Name of precipitation column}
 
-\item{datetime.name}{name of date/time column}
+\item{datetime.name}{Name of date/time column}
 }
 \value{
-numeric vector of antecedent precipitation
+numeric vector of antecedent precipitation for given period, delay, and fun
 }
 \description{
-Computes antecedent precipitation as a rolling sum. Ensures the time series
-is regular and continuous
+Computes antecedent precipitation as a rolling sum. Time series
+must be continuous at hourly intervals
 }
 \examples{
+filepath <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
+pcp <- load_precip_from_xls(filepath, as.type='dataframe')
 pcp$Precip.48 <- antecedent_precip(pcp, period=48, delay=0,
                                    datetime.name="Datetime",
                                    value.name="Precip")

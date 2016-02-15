@@ -7,12 +7,12 @@
 load_wq(path, projects = NULL, sample_types = "S", exclude_flags = FALSE)
 }
 \arguments{
-\item{path}{Path to MyRWA Access Database}
+\item{path}{Full path to MyRWA Access Database}
 
-\item{projects}{ProjectID(s) to keep (default=NULL for all projects)}
+\item{projects}{vector of ProjectIDs to keep (default=NULL to return all projects)}
 
 \item{sample_types}{SampleTypeID(s) to keep in dataset (default="S" to
-exclude blanks and duplicates, if NULL retains all sample types)}
+exclude blanks and duplicates, if NULL returns all sample types)}
 
 \item{exclude_flags}{If TRUE, excludes all samples with any flag,
 otherwise returns all samples}
@@ -21,6 +21,11 @@ otherwise returns all samples}
 A dataframe containing water quality data
 }
 \description{
-Loads water quality data with associated tables
+Loads water quality Results table merged with Visit and Location tables
+}
+\examples{
+df <- load_wq(path = "D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
+# all baseline samples including flagged and qaqc samples
+baseline <- load_wq(path = "D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb", projects="BASE", sample_types=NULL, exclude_flags=FALSE)
 }
 

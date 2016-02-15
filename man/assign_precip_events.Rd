@@ -2,7 +2,7 @@
 % Please edit documentation in R/events.R
 \name{assign_precip_events}
 \alias{assign_precip_events}
-\title{Delineates storm events based on hourly precipitation}
+\title{Delineate storm events based on hourly precipitation}
 \usage{
 assign_precip_events(x, datetime.name = "Datetime", value.name = "Precip",
   interevent.period = 8, threshold.total = 0.1)
@@ -20,10 +20,10 @@ events}
 \item{threshold.total}{Minimum total precipitation for an individual event}
 }
 \value{
-dataframe or zoo object of hourly precipitation values
+original dataframe with additional columns EventID, EventType, EventDuration
 }
 \description{
 Uses a timeseries of hourly precipitation to define storm events and create
-summary table
+summary table of events
 }
 

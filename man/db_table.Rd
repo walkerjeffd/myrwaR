@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{db_table}
 \alias{db_table}
-\title{Load table from database}
+\title{Load single table from database}
 \usage{
 db_table(ch, table_name, ...)
 }
@@ -20,8 +20,7 @@ A dataframe containing the database table
 Loads the data from a table in the database
 }
 \examples{
-directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 tbl.Results <- db_table(ch, "Results")
 }
 

@@ -4,20 +4,24 @@
 \alias{load_precip_from_usgs}
 \title{Load precipitation from USGS Web Services}
 \usage{
-load_precip_from_usgs(start_date, end_date = NULL, station_id = "01104683",
+load_precip_from_usgs(start_date, end_date = NULL, station_id = "01102500",
   tz = "EST", as.type = c("dataframe", "zoo"), datetime.name = "Datetime",
   value.name = "Precip")
 }
 \arguments{
 \item{start_date}{Start date of timeseries as string}
 
-\item{end_date}{End date of timeseries as string}
+\item{end_date}{End date of timeseries as string (default=NULL meaning use today's date)}
 
-\item{station_id}{USGS station ID (default=01104683 for Muddy River)}
+\item{station_id}{USGS station ID as string (default="01102500" for Aberjona River)}
 
 \item{tz}{Timezone assigned to resulting dataframe (default="EST")}
 
 \item{as.type}{Return type as 'dataframe' (default) or 'zoo'}
+
+\item{datetime.name}{Name of datetime column (default="Datetime")}
+
+\item{value.name}{Name of precipitation column (default="Precip")}
 }
 \value{
 dataframe or zoo object of hourly precipitation timeseries in

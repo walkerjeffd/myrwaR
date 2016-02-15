@@ -2,35 +2,34 @@
 % Please edit documentation in R/precip.R
 \name{load_precip_from_xls}
 \alias{load_precip_from_xls}
-\title{Load precipitation from Excel File}
+\title{Load precipitation dataset from Excel File}
 \usage{
 load_precip_from_xls(path, sheet.name = "Processed precipitation",
   tz = "EST", datetime.name = "Datetime", value.name = "Precip",
   as.type = c("dataframe", "zoo"))
 }
 \arguments{
-\item{path}{Path and filename to precipitation spreadsheet (LoganPrecip.xlsx)}
+\item{path}{Full path and filename to precipitation spreadsheet (LoganPrecip.xlsx)}
 
-\item{sheet.name}{Name of workbook sheet to load data from}
+\item{sheet.name}{Name of workbook sheet to load data from (default="Processed precipitation")}
 
-\item{tz}{Timezone of datetimes (default="EST")}
+\item{tz}{Timezone of date/time stamps (default="EST")}
 
-\item{value.name}{Name of precipitation value column}
+\item{datetime.name}{Name of datetime column (default="Datetime")}
+
+\item{value.name}{Name of precipitation column (default="Precip")}
 
 \item{as.type}{Return type as 'dataframe' (default) or 'zoo'}
-
-\item{datatime.name}{Name of datetime column}
 }
 \value{
 dataframe or zoo object of hourly precipitation values
 }
 \description{
-Loads the hourly precipitation data from an Excel spreadsheet such as
-LoganPrecip.xlsx.
+Loads the hourly precipitation data from an Excel spreadsheet
+(specifically: LoganPrecip.xlsx).
 }
 \examples{
-filepath <- file.path("..","..","_share_db","Processed",
-                      "Precip","LoganPrecip.xlsx")
+filepath <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
 pcp.df <- load_precip_from_xls(filepath, as.type='dataframe')
 pcp.zoo <- load_precip_from_xls(filepath, as.type='zoo')
 }

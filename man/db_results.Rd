@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{db_results}
 \alias{db_results}
-\title{Load results table}
+\title{Load Results table merged with Visit table}
 \usage{
 db_results(ch, ...)
 }
@@ -12,14 +12,13 @@ db_results(ch, ...)
 \item{...}{Additional arguments passed to db_table()}
 }
 \value{
-Data frame of water quality data
+Data frame of water quality data containing visit information
 }
 \description{
 Loads the water quality data from the Result table merged with Visit table
 }
 \examples{
-directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 wq <- db_results(ch)
 }
 
