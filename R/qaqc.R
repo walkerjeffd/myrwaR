@@ -5,7 +5,6 @@
 #' Prints message listing any untrimmed values.
 #'
 #' @param x character vector
-#' @export
 #' @return boolean
 #' @examples
 #' check_string_trim(c("a", "b", "c ")) # false
@@ -27,7 +26,6 @@ check_string_untrimmed <- function(x) {
 #' Prints message listing any empty string values.
 #'
 #' @param x character vector
-#' @export
 #' @return boolean
 #' @examples
 #' check_string_trim(c("a", "b", " "))  # false
@@ -52,7 +50,6 @@ check_no_empty_strings <- function(x) {
 #' Checks for empty and untrimmed strings
 #'
 #' @param ch connection handle to database
-#' @export
 #' @return nothing
 #' @examples
 #' qaqc_table_results(ch)

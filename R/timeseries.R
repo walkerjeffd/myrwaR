@@ -6,7 +6,6 @@
 #' @param values vector of numeric values
 #' @param by target frequency (e.g. "hour", "day", etc), see seq.POSIXt
 #' @param fill value to fill missing elements
-#' @export
 #' @return boolean
 #' @examples
 #' zoo.regular(df$Datetime, df$Value, by="hour", fill=NA)
@@ -27,7 +26,6 @@ zoo.regular <- function(dates, values, by="hour", fill=NA) {
 #' the series is regular (i.e. consecutive and complete) at hourly timesteps
 #'
 #' @param x zoo object or vector of datetimes
-#' @export
 #' @return boolean
 #' @examples
 #' is.regular_hourly(df$Datetime)
