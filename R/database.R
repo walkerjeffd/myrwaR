@@ -1,41 +1,41 @@
-#' Connect to Access database
+#' Connect to MyRWA WQ database
 #'
-#' Opens a connection to an access database
+#' Opens a connection to the MyRWA WQ database
 #'
 #' @param path Path to database
+#' @importFrom RODBC odbcConnectAccess2007
 #' @export
 #' @return RODBC connection handle
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 db_connect <- function(path) {
-  ch <- RODBC::odbcConnectAccess2007(path)
+  ch <- odbcConnectAccess2007(path)
   ch
 }
 
-#' Load results table
+#' Load Results table merged with Visit table
 #'
 #' Loads the water quality data from the Result table merged with Visit table
 #'
 #' @param ch Open connection handle to database
 #' @param ... Additional arguments passed to db_table()
-#' @return Data frame of water quality data
+#' @importFrom lubridate with_tz
+#' @return Data frame of water quality data containing visit information
 #' @export
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' wq <- db_results(ch)
 db_results <- function(ch, ...) {
   tbl_result <- db_table(ch, "Result", ...)
   tbl_visit <- db_table(ch, "Visit", ...)
 
-  df <- merge(tbl_result, tbl_visit, by.x="VisitID", by.y="ID", all.x=T)
+  df <- merge(tbl_result, tbl_visit, by.x="VisitID", by.y="ID", all.x=TRUE)
 
-  df[, "Datetime"] <- lubridate::with_tz(df[, "Datetime"], tz="EST")
-  df[, "CharacteristicID"] <- factor(df[, "CharacteristicID"])
-  df[, "LocationID"] <- factor(df[, "LocationID"])
-  df[, "Units"] <- factor(df[, "Units"])
-  df[, "ProjectID"] <- factor(df[, "ProjectID"])
+  df[["Datetime"]] <- with_tz(df[["Datetime"]], tz="EST")
+  df[["CharacteristicID"]] <- factor(df[["CharacteristicID"]])
+  df[["LocationID"]] <- factor(df[["LocationID"]])
+  df[["Units"]] <- factor(df[["Units"]])
+  df[["ProjectID"]] <- factor(df[["ProjectID"]])
 
   df <- droplevels(df)
 
@@ -43,37 +43,37 @@ db_results <- function(ch, ...) {
 }
 
 
-#' Load table from database
+#' Load single table from database
 #'
 #' Loads the data from a table in the database
 #'
 #' @param ch Connection handle to database
 #' @param table_name Table name
 #' @param ... Additional arguments passed to sqlFetch()
+#' @importFrom RODBC sqlFetch
 #' @return A dataframe containing the database table
 #' @export
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' tbl.Results <- db_table(ch, "Results")
 db_table <- function(ch, table_name, ...) {
-  df <- RODBC::sqlFetch(ch, table_name, ...)
+  df <- sqlFetch(ch, table_name, ...)
   df
 }
 
-#' Retrieve table names in database
+#' List of table names in database
 #'
 #' Retrieves a character vector of table names
 #'
 #' @param ch Connection handle to database
+#' @importFrom RODBC sqlTables
 #' @return A character vector of table names
 #' @export
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' table_names <- db_list_tables(ch)
 db_list_tables <- function(ch) {
-  tables <- RODBC::sqlTables(ch, tableType="TABLE")$TABLE_NAME
+  tables <- sqlTables(ch, tableType="TABLE")$TABLE_NAME
   tables
 }
 
@@ -82,15 +82,15 @@ db_list_tables <- function(ch) {
 #' Retrieves the field names and types from a given database table
 #'
 #' @param ch Connection handle to database
+#' @importFrom RODBC sqlColumns
 #' @return A dataframe containing the column names and types for the specified
 #'   table
 #' @export
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' schema_results <- db_table_fields(ch, table_name = "Results")
 db_table_fields <- function(ch, table_name) {
-  fields <- RODBC::sqlColumns(ch, table_name)[, c("COLUMN_NAME", "TYPE_NAME")]
+  fields <- sqlColumns(ch, table_name)[, c("COLUMN_NAME", "TYPE_NAME")]
   fields
 }
 
@@ -103,8 +103,7 @@ db_table_fields <- function(ch, table_name) {
 #' @return A dataframe containing the locations in the database
 #' @export
 #' @examples
-#' directory <- "C://Users//Jeff//Dropbox//Work//mystic//data//"
-#' ch <- db_connect(file.path(directory, "MysticDB_20140510.accdb"))
+#' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' locations <- db_locations(ch)
 db_locations <- function(ch) {
   tbl_location <- db_table(ch, "Location")
@@ -121,16 +120,20 @@ db_locations <- function(ch) {
 
 #' Load water quality data
 #'
-#' Loads water quality data with associated tables
+#' Loads water quality Results table merged with Visit and Location tables
 #'
-#' @param path Path to MyRWA Access Database
-#' @param projects ProjectID(s) to keep (default=NULL for all projects)
+#' @param path Full path to MyRWA Access Database
+#' @param projects vector of ProjectIDs to keep (default=NULL to return all projects)
 #' @param sample_types SampleTypeID(s) to keep in dataset (default="S" to
-#'        exclude blanks and duplicates, if NULL retains all sample types)
+#'        exclude blanks and duplicates, if NULL returns all sample types)
 #' @param exclude_flags If TRUE, excludes all samples with any flag,
 #'        otherwise returns all samples
 #' @return A dataframe containing water quality data
 #' @export
+#' @examples
+#' df <- load_wq(path = "D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
+#' # all baseline samples including flagged and qaqc samples
+#' baseline <- load_wq(path = "D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb", projects="BASE", sample_types=NULL, exclude_flags=FALSE)
 load_wq <- function(path, projects=NULL, sample_types="S",
                     exclude_flags=FALSE) {
   ch <- db_connect(path)
@@ -150,6 +153,8 @@ load_wq <- function(path, projects=NULL, sample_types="S",
   if (exclude_flags) {
     wq <- subset(wq, is.na(FlagID) | FlagID %in% c("", " "))
   }
+
+  wq <- droplevels(wq)
 
   close(ch)
 
