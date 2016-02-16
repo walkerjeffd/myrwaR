@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, echo=FALSE}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
 base_dir <- 'D:/Dropbox/Work/mystic/db'
 db_path <- file.path(base_dir, "MysticDB_20160208.accdb")
@@ -92,4 +92,14 @@ The `compare_database()` function can also save the output to a text file by set
 compare_database(old_path = file.path(base_dir, "MysticDB_20150227.accdb"),
                  new_path = file.path(base_dir, "MysticDB_20150529.accdb"),
                  log_file = file.path(base_dir, 'compare_20150227_20150529.txt'))
+```
+
+## Database QAQC Checks
+
+The `db_qaqc_suite()` runs a series of checks on the Result and Visit tables in the database. These checks are intended to find invalid values in each column of these tables. Three types of checks include lower/upper case consistency, the presence of empty strings (e.g. `""`), and untrimmed strings (e.g. `"FD "`). Because Access does not enforce consistency across these issues, they can cause issues when importing the results to R, which does require consistency. This function will report which columns failed, the reason, and the number of rows that failed each check. The specific rows that failed can be shown by setting `print.values=TRUE`. 
+
+```{r qaqc-suite}
+ch <- db_connect(db_path)
+db_qaqc_suite(ch, print.rows=FALSE)
+close(ch)
 ```

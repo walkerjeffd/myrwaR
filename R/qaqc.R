@@ -1,69 +1,108 @@
-#' Checks for untrimmed strings
+#' Run QAQC test suite on database
 #'
-#' Given character vector, checks if any of the unique values have extra spaces
-#' at the start or end (e.g. "a " or " a").
-#' Prints message listing any untrimmed values.
+#' Runs a suite of tests to check for invalid values, relationships, and other issues in the database.
 #'
-#' @param x character vector
-#' @return boolean
-#' @examples
-#' check_string_trim(c("a", "b", "c ")) # false
-check_string_untrimmed <- function(x) {
-  x <- subset(x, !is.na(x))
-  trimmed <- sapply(as.character(unique(x)), stringr::str_trim)
-  unmatched <- names(trimmed[names(trimmed) != unname(trimmed)])
-  if (length(unmatched) > 0) {
-    print(paste0("Found ", length(unmatched), " untrimmed unique values: ",
-                 paste(paste0("'", unmatched, "'"), collapse=", ")))
-    return(FALSE)
-  }
-  return(TRUE)
-}
-
-#' Checks for empty strings
-#'
-#' Given character vector, checks if any of the unique values are empty strings.
-#' Prints message listing any empty string values.
-#'
-#' @param x character vector
-#' @return boolean
-#' @examples
-#' check_string_trim(c("a", "b", " "))  # false
-#' check_string_trim(c("a", "b", "  ")) # false
-check_no_empty_strings <- function(x) {
-  x.unique <- as.character(unique(x))
-  x.trim <- sapply(x.unique, stringr::str_trim)
-  x.empty <- names(x.trim[which(x.trim == "")])
-
-  if (length(x.empty) > 0) {
-    print(paste0("Found ", sum(x %in% x.empty),
-                 " empty values with factor levels: ",
-                 paste(paste0("'", x.empty, "'"),
-                       collapse=", ")))
-    return(FALSE)
-  }
-  return(TRUE)
-}
-
-#' Runs batch of QAQC tests on Results table
-#'
-#' Checks for empty and untrimmed strings
-#'
-#' @param ch connection handle to database
+#' @param ch Connection handle to database
+#' @param print.rows If TRUE, prints individual rows that did not pass any given test (default=FALSE)
 #' @return nothing
+#' @export
 #' @examples
-#' qaqc_table_results(ch)
-qaqc_table_results <- function(ch) {
-  res <- db_table(ch, "Results")
-  testthat::expect_true(check_no_empty_strings(res$Qualifier))
-  testthat::expect_true(check_no_empty_strings(res$CharacteristicID))
-  testthat::expect_true(check_no_empty_strings(res$SampleType))
-  testthat::expect_true(check_no_empty_strings(res$LocationID))
-  testthat::expect_true(check_no_empty_strings(res$ProjectID))
-  testthat::expect_true(check_no_empty_strings(res$Datetime))
-  testthat::expect_true(check_no_empty_strings(res$SampleTypeID))
-  testthat::expect_true(check_no_empty_strings(res$Units))
-  testthat::expect_true(check_no_empty_strings(res$SampleTypeID))
+#' db_qaqc_suite(ch)
+db_qaqc_suite <- function(ch, print.rows) {
+  cat("Loading tables...")
+  tblResult <- db_table(ch, "Result", stringsAsFactors=FALSE)
+  tblVisit <- db_table(ch, "Visit", stringsAsFactors=FALSE)
+  tblProject <- db_table(ch, "Project", stringsAsFactors=FALSE)
+  tblResultFlag <- db_table(ch, "ResultFlag", stringsAsFactors=FALSE)
+  tblUnits <- db_table(ch, "Units", stringsAsFactors=FALSE)
+  tblSampleType <- db_table(ch, "SampleType", stringsAsFactors=FALSE)
+  tblMethod <- db_table(ch, "Method", stringsAsFactors=FALSE)
+  cat("done\n\n")
+
+  failed <- FALSE
+
+  cat("Checking Result table...\n")
+
+  failed <- failed | check_db(tblResult, c("CharacteristicID", "Units", "Qualifier", "FlagID"), "empty strings", check_empty_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblResult, c("CharacteristicID", "FlagID"), "lowercase strings", check_lowercase_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblResult, c("CharacteristicID", "Units", "Qualifier", "FlagID"), "untrimmed strings", check_untrimmed_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblResult, c("Units"), "invalid units", check_allowed_values, tblUnits$ID, print.rows=print.rows)
+  failed <- failed | check_db(tblResult, c("FlagID"), "invalid flags", check_allowed_values, tblResultFlag$ID, print.rows=print.rows)
+
+  cat("Checking Visit table...\n")
+
+  failed <- failed | check_db(tblVisit, c("UniqueID", "LocationID", "ProjectID", "SampleTypeID", "SampleDepthType"), "empty strings", check_empty_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("ProjectID", "SampleTypeID", "SampleDepthType"), "lowercase strings", check_lowercase_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("UniqueID", "LocationID", "ProjectID", "SampleTypeID", "SampleDepthType"), "untrimmed strings", check_untrimmed_strings, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("UniqueID", "LocationID", "ProjectID", "SampleTypeID", "SampleDepthType"), "NA values", check_na_values, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("Datetime"), "datetimes out-of-range", check_range_dates, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("SampleTypeID"), "invalid sample type IDs", check_allowed_values, tblSampleType$ID, print.rows=print.rows)
+  failed <- failed | check_db(tblVisit, c("ProjectID"), "invalid project IDs", check_allowed_values, tblProject$ID, print.rows=print.rows)
+
+  if (failed) {
+    warning("Database did not pass validation checks, see details above")
+  } else {
+    cat("Done! Everything looks OK.")
+  }
+}
+
+
+check_db <- function (df, names, description, fun, ..., print.rows=TRUE) {
+  cat(".. Checking for", description, "\n")
+  failed <- FALSE
+  for (name in names) {
+    cat("....", name, "...")
+    idx <- fun(df[[name]], ...)
+    if (length(idx) > 0) {
+      failed <- TRUE
+      cat("FAILED\n\n")
+      cat("ERROR: There are", length(idx), "row(s) with", description, "in column", paste0('"', name, '"'), "\n\n")
+      if (print.rows) {
+        if (length(idx) > 50) {
+          print(df[idx[1:50], c("ID", name)], row.names=FALSE, quote = TRUE)
+          cat("and", (length(idx)-50), "more rows...\n")
+        } else {
+          print(df[idx, c("ID", name)], row.names=FALSE, quote = TRUE)
+        }
+        cat("\n\n")
+      }
+    } else {
+      cat("OK\n")
+    }
+  }
+  failed
+}
+
+check_untrimmed_strings <- function(x) {
+  x <- as.character(x)
+  which(!is.na(x) & x != stringr::str_trim(x))
+}
+
+check_empty_strings <- function(x) {
+  x <- as.character(x)
+  which(!is.na(x) & stringr::str_trim(x) == "")
+}
+
+check_lowercase_strings <- function(x) {
+  x <- as.character(x)
+  which(!is.na(x) & stringr::str_to_upper(x) != x)
+}
+
+check_na_values <- function(x) {
+  which(is.na(x))
+}
+
+check_range_dates <- function(x) {
+  min_date <- as.Date("1900-01-01")
+  max_date <- as.Date(Sys.Date())
+
+  x <- as.Date(x)
+
+  which(!is.na(x) & ((x < min_date) | (x > max_date)))
+}
+
+check_allowed_values <- function(x, allowed) {
+  which(!is.na(x) & !(x %in% allowed))
 }
 
 #' Compare two database versions and summarize differences
