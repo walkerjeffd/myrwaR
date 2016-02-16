@@ -1,8 +1,8 @@
 Package: myrwaR
 Type: Package
 Title: Tools for the Mystic River Watershed Association
-Version: 0.1.3.9000
-Date: 2016-02-15
+Version: 0.2.0
+Date: 2016-02-16
 Authors@R: person("Jeff", "Walker", email = "jeff@walkerenvres.com",
                   role = c("aut", "cre"))
 Description: Provides functions to load, analyze, and visualization hydrologic
