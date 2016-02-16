@@ -1,0 +1,259 @@
+---
+title: "Loading and Analyzing Precipitation Data"
+author: "Jeffrey D. Walker, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Precipitation Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+```
+
+
+The `myrwaR` package includes functions for loading and analyzing precipitation data. First, load the packages.
+
+```{r load-package, message=FALSE, warning=FALSE}
+library(myrwaR)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+# Loading Precipitation Data
+
+## Loading Precipitation Data from Excel File
+
+To load a precipitation dataset from an Excel file, use the `load_precip_from_xls()` function. This function takes a number of additional arguments such as the name of the workbook sheet, the timezone of the datetimes, and the names of the datetime and precipitation value columns. The defaults for these arguments are based on MyRWA's current `LocationPrecip.xlsx` file. See `?load_precip_from_xls` for details.
+
+```{r load-xls}
+# get path to example precip file provided within myrwaR package
+# this is a truncated version of the official MyRWA precipitation file
+xls_path <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
+prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
+str(prcp)
+```
+
+
+### Returning a zoo Object
+
+The precipitation timeseries can also be returned as a `zoo` object (see the [zoo package](http://cran.r-project.org/web/packages/zoo/index.html) for details). A zoo object is designed to handle timeseries data better than a dataframe. However, it does take some time to learn how to use the package effectively.
+
+```{r load-xls-zoo}
+prcp_zoo <- load_precip_from_xls(path = xls_path, as.type = "zoo")
+str(prcp_zoo)
+```
+
+## Loading Precipitation Data from USGS NWIS
+
+Precipitation data can also be loaded from the USGS NWIS system using the `load_precip_from_usgs()` function. The default station for this function is the Aberjona River gage (01102500).
+
+```{r load-prcp-usgs}
+prcp_usgs <- load_precip_from_usgs(start_date="2015-01-01", end_date="2015-01-10", station_id="01102500")
+str(prcp_usgs)
+```
+
+```{r plot-prcp-usgs, fig.width=6, fig.height=4, warning=FALSE}
+mutate(prcp_usgs, PrecipCumsum = cumsum(Precip)) %>%
+  ggplot(aes(Datetime)) +
+  geom_line(aes(y=Precip, color="Precip")) +
+  geom_line(aes(y=PrecipCumsum, color="PrecipCumsum")) +
+  scale_color_manual('', values=c(Precip="steelblue", PrecipCumsum="orangered"),
+                     labels=c(Precip="Hourly Precip", PrecipCumsum="Cumulative Precip")) +
+  theme(legend.position=c(0, 1),
+        legend.justification=c(0, 1))
+```
+
+
+# Antecedent Precipitation
+
+Antecedent precipitation is a useful variable for analyzing water quality data. The `antecedent_precip()` function computes antecedent precipitation based on an hourly timeseries and a specified duration (e.g. 48-hour). The function returns a numeric vector of the same length as the original precipitation. Note that the first `n-1` elements will be `NA`, since there are insufficient values available to compute the full antecedent precipitation.
+
+```{r ante-prcp}
+ante_prcp <- antecedent_precip(prcp, period = 48)
+summary(ante_prcp)
+```
+
+The function also checks that the input timeseries is continuous and at an hourly timestep. If there are any gaps, duplicated datetimes, or `NA` values, then the function will throw and error. For example, if the 100th row of `prcp` is removed`:
+
+```{r ante-error, results="hide", warning=FALSE, error=TRUE}
+antecedent_precip(prcp[-100, ], period = 48)
+```
+
+To create a data frame containing multiple antecedent precipitation columns,
+just save the result `antecedent_precip()` to new columns in the original data
+frame.
+
+```{r ante-prcp-col}
+prcp$Precip24 <- antecedent_precip(prcp, period = 24)
+prcp$Precip48 <- antecedent_precip(prcp, period = 48)
+```
+
+A delay can also be set for the antecedent precipitation, which shifts the
+period by some number of hours. For example, to get the 48 hours with a delay of
+6 hours:
+
+```{r ante-prcp-col-delay}
+prcp$Precip48.6 <- antecedent_precip(prcp, period = 48, delay = 6)
+```
+
+And finally, we can change the aggregation function to view other statistics
+of antecedent precipitation. For exmple, to see the maximum intensity over the
+previous 24 hours:
+
+```{r ante-prcp-col-max}
+prcp$Precip24.max <- antecedent_precip(prcp, period = 24, fun = max)
+```
+
+
+This figure shows the historical hourly (black), 24-hour antecedent sum (solid red) and maximum intensity (dashed red), 48-hour antecedent sum (blue), and 48-hour antecedent sum with 6 hour delay (green) precipitation over 30 days of the timeseries.
+
+```{r plot-ante-prcp, fig.width=6, fig.height=4, warning=FALSE}
+ggplot(prcp[(24*15):(24*30), ], aes(Datetime)) +
+  geom_line(aes(y=Precip, color="Precip")) +
+  geom_line(aes(y=Precip24, color="Precip24")) +
+  geom_line(aes(y=Precip24.max, color="Precip24.max")) +
+  geom_line(aes(y=Precip48, color="Precip48")) +
+  geom_line(aes(y=Precip48.6, color="Precip48.6")) +
+  scale_color_manual(NULL,
+                     labels=c(Precip="Hourly Precip",
+                              Precip24="24-hr Total Precip", 
+                              Precip24.max="24-hr Max Precip",
+                              Precip48="48-hr Total Precip", 
+                              Precip48.6="48-hour Total Precip (6-hr Delay)"),
+                     values=c(Precip="black",
+                              Precip24="red", 
+                              Precip24.max="orange",
+                              Precip48="deepskyblue", 
+                              Precip48.6="olivedrab3")) +
+  theme(legend.position=c(0, 1),
+        legend.justification=c(0, 1),
+        legend.background=element_blank())
+```
+
+## Adding Antecedent Precip to WQ Data
+
+The `append_weather()` function can be used to add columns of antecedent precipitation and weather condition (dry/wet) to a water quality data frame. The following code loads the baseline wq samples for 2010-2011, and the hourly Logan precip dataset. The 48-hour antecedent precipitation is then added to the wq dataframe (column name "Precip.48"), and the weather condition (column name "Weather") assigned to "Wet"" or "Dry" based on a threshold of 0.25 inches over 48 hours. 
+
+```{r append-weather}
+wq <- load_wq("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb", projects="BASE", sample_types="S", exclude_flags=FALSE)
+wq <- filter(wq, year(Datetime) %in% 2010:2011)
+xls_path <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
+prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
+
+wq_prcp <- append_weather(wq, prcp, period = 48, precip.threshold = 0.25, precip.name = "Precip")
+str(wq_prcp)
+```
+
+Note that the last two columns are `Precip.48` and `Weather`, which were created by the `append_weather()` function. The antecedent precipitation column named according to the scheme: `<precip.name>.<period>` where `precip.name` and `period` are defined as arguments to the function.
+
+# Storm Events
+
+It can also be useful when analyzing water quality data to identify and summarize discrete storm events. The `myrwaR` package includes two functions related to storm events. The first function, `assign_precip_events()`, takes an hour precipitation timeseries and assigns a unique ID to each dry and wet event. The second function, `precip_event_summary()` takes the result of `assign_precip_events()` and generates a summary table listing the properties of each event (e.g. duration, total depth, max intensity, etc.).
+
+## Identifyng Storm Events
+
+For this example, we'll start with the hourly precipitation for March 2010. The plot below shows some small and some large events.
+
+```{r plot-prcp-032010, fig.width=6, fig.height=4, warning=FALSE}
+prcp_032010 <- dplyr::filter(prcp, lubridate::year(Datetime)==2010, month(Datetime)==3)
+ggplot(prcp_032010, aes(Datetime, Precip)) +
+  geom_line() +
+  labs(y="Precip (in/hr)")
+```
+
+The `assign_precip_events()` function can then identify and assign unique IDs to each event.
+
+```{r prcp-events, fig.width=6, fig.height=4, warning=FALSE}
+prcp_032010_evt <- assign_precip_events(x = prcp_032010)
+str(prcp_032010_evt)
+```
+
+The result from this function is a copy of the original timeseries with additional columns for:
+
+- `EventID`: unique ID for the event
+- `EventType`: type of event ("Wet" or "Dry")
+
+```{r plot-prcp-evt, fig.width=6, fig.height=4, warning=FALSE}
+ggplot(prcp_032010_evt, aes(Datetime, Precip, group=EventID, color=interaction(EventType, EventID))) +
+  geom_line() +
+  scale_color_discrete("EventType.EventID") +
+  labs(y="Precip (in/hr)")
+```
+
+This figure shows the hourly and cumulative precipitation during each wet event.
+
+```{r plot-prcp-wet, fig.width=6, fig.height=8, warning=FALSE}
+filter(prcp_032010_evt, EventType == "Wet") %>%
+  group_by(EventID) %>%
+  mutate(PrecipCumsum=cumsum(Precip)) %>%
+  ggplot(aes(Datetime)) +
+  geom_line(aes(y=Precip, color="Precip")) +
+  geom_line(aes(y=PrecipCumsum, color="PrecipCumsum")) +
+  scale_color_manual(NULL, labels=c(Precip="Hourly Precip", PrecipCumsum="Cumulative Precip"),
+                     values=c(Precip="steelblue", PrecipCumsum="orangered")) +
+  scale_x_datetime(labels=scales::date_format("%b %d %H:%M")) +
+  ylim(0, NA) +
+  labs(x="", y="Precip (in/hr) / Cumul Precip (in)") +
+  facet_wrap(~EventID, scales="free", labeller = "label_both", ncol = 2) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5))
+```
+
+## Summarize Events
+
+After assigning unique `EventIDs` to the hourly precipitation timeseries, the `precip_event_summary()` function can be used to create a summary of these events and list various characteristics such as the start/end times, duration, total precipitation depth, peak precipitation rate, etc.
+
+```{r prcp-evt-summary}
+prcp_032010_evt_summary <- precip_event_summary(prcp_032010_evt)
+str(prcp_032010_evt_summary)
+```
+
+Note that the data frame returned from this function includes both the dry and wet events. To summarize only the wet events, simply filter on the `EventType` column.
+
+```{r prcp-evt-summary-wet}
+filter(prcp_032010_evt_summary, EventType=="Wet") %>%
+  summary
+```
+
+
+## Adding Events to a WQ Dataset
+
+The precipitation events dataframe can be joined to the water quality dataset using the date/time stamp of each water quality result, and the date/time of the precipitation timeseries. However, to perform this join, the date/time stamp in the water quality dataset must first be rounded to the nearest hour. For example, the following code loads the baseline wq and precipitation datasets for 2010-2011, identifies the precipitation events, and then joins this information with the wq dataset:
+
+```{r prcp-evt-wq-1}
+wq <- load_wq("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb", projects="BASE", sample_types="S", exclude_flags=FALSE)
+wq <- filter(wq, year(Datetime) %in% 2010:2011)
+
+xls_path <- system.file("extdata", "LoganPrecip.xlsx", package = "myrwaR")
+prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
+prcp <- dplyr::filter(prcp, year(Datetime) %in% 2010:2010)
+```
+
+We then assign the events to the hourly precipitation dataset:
+
+```{r prcp-evt-wq-2}
+prcp_evt <- assign_precip_events(x = prcp)
+
+summary(prcp_evt)
+```
+
+Finally, add a new column `Datehour` to the `wq` data frame which is the `Datetime` column rounded to the nearest hour, and then use that column to join the `prcp_evt` data frame.
+
+```{r prcp-evt-wq-3}
+wq <- mutate(wq, Datehour = floor_date(Datetime, unit = "hour"))
+wq_prcp_evt <- left_join(wq, prcp_evt, by=c("Datehour"="Datetime"))
+str(wq_prcp_evt)
+```
+
+We can also add the event summary data to the `wq` data frame by joining on the `EventID` and `EventType` columns:
+
+```{r prcp-evt-wq-4}
+prcp_evt_summary <- precip_event_summary(prcp_evt)
+wq_prcp_evt <- left_join(wq_prcp_evt, prcp_evt_summary, by=c("EventID", "EventType"))
+str(wq_prcp_evt)
+```
+
