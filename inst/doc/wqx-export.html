@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Jeffrey D. Walker, PhD" />
+
+<meta name="date" content="2016-02-16" />
+
+<title>WQX Export</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0A%7D%0Apre%20%7B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">WQX Export</h1>
+<h4 class="author"><em>Jeffrey D. Walker, PhD</em></h4>
+<h4 class="date"><em>2016-02-16</em></h4>
+</div>
+
+
+<p>This document shows how to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX.</p>
+<p>There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. The <code>myrwaR</code> package provides functions that extract data from the database, and convert these datasets to formats accepted by WQX.</p>
+<div id="open-database-connection" class="section level1">
+<h1>Open Database Connection</h1>
+<p>In order to extract data from the water quality database, first create a connection channel to the database:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(myrwaR)
+base_dir &lt;-<span class="st"> 'D:/Dropbox/Work/mystic/db'</span>
+db_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20160208.accdb&quot;</span>)
+ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)</code></pre></div>
+</div>
+<div id="projects-table" class="section level1">
+<h1>Projects Table</h1>
+<p>The WQX Projects Table is generated using the <code>wqx_projects()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">projects &lt;-<span class="st"> </span><span class="kw">wqx_projects</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
+<span class="kw">str</span>(projects)</code></pre></div>
+<pre><code>## 'data.frame':    1 obs. of  3 variables:
+##  $ ProjectID         : chr &quot;BASE&quot;
+##  $ ProjectName       : chr &quot;Baseline Mystic River Watershed MA&quot;
+##  $ ProjectDescription: chr &quot;Water quality data collected since 2000 by MyRWA from fifteen sites across the watershed that documents trends in water quality&quot;| __truncated__</code></pre>
+<p>This file can then be saved to a csv file, which can then be imported to WQX:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(projects, <span class="dt">file=</span><span class="st">'projects.csv'</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
+</div>
+<div id="results-table" class="section level1">
+<h1>Results Table</h1>
+<p>The WQX Results Table is generated using the <code>wqx_results()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">wqx_results</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
+<span class="kw">str</span>(results)</code></pre></div>
+<pre><code>## 'data.frame':    21846 obs. of  25 variables:
+##  $ ProjectID                              : chr  &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; ...
+##  $ MonitoringLocationID                   : chr  &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; ...
+##  $ ActivityID                             : chr  &quot;MYRMMP:200801290806:L:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:L:FD&quot; ...
+##  $ ActivityType                           : chr  &quot;Quality Control Sample-Field Replicate&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Sample-Field Replicate&quot; ...
+##  $ ActivityMediaName                      : chr  &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; ...
+##  $ ActivityStartDate                      : chr  &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; ...
+##  $ ActivityStartTime                      : chr  &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; ...
+##  $ ActivityStartTimeZone                  : chr  &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; ...
+##  $ CharacteristicName                     : chr  &quot;Nitrite&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Enterococcus&quot; ...
+##  $ MethodSpeciation                       : chr  &quot;as N&quot; NA NA NA ...
+##  $ SampleCollectionMethod                 : chr  &quot;grab&quot; NA NA &quot;grab&quot; ...
+##  $ SampleCollectionEquipmentName          : chr  &quot;Water Bottle&quot; NA NA &quot;Water Bottle&quot; ...
+##  $ ResultDetectionCondition               : chr  &quot;Present Below Quantification Limit&quot; NA NA NA ...
+##  $ ResultValue                            : num  NA 11.41 73.62 46 0.23 ...
+##  $ ResultUnit                             : chr  &quot;mg/l&quot; &quot;mg/l&quot; &quot;%&quot; &quot;cfu/100ml&quot; ...
+##  $ ResultMeasureQualifier                 : chr  NA NA NA NA ...
+##  $ ResultSampleFraction                   : chr  &quot;Dissolved&quot; NA NA NA ...
+##  $ ResultStatusID                         : chr  &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; ...
+##  $ ResultValueType                        : chr  &quot;Actual&quot; &quot;Actual&quot; &quot;Calculated&quot; &quot;Actual&quot; ...
+##  $ ResultAnalyticalMethodID               : chr  &quot;4500-NO3(F)&quot; &quot;D888(B)&quot; &quot;D888(B)&quot; &quot;1600&quot; ...
+##  $ ResultAnalyticalMethodContext          : chr  &quot;APHA&quot; &quot;ASTM&quot; &quot;ASTM&quot; &quot;USEPA&quot; ...
+##  $ ResultDetectionQuantitationLimitType   : chr  &quot;Lower Quantitation Limit&quot; NA NA NA ...
+##  $ ResultDetectionQuantitationLimitMeasure: num  0.1 NA NA NA NA NA NA NA NA 0.1 ...
+##  $ ResultDetectionQuantitationLimitUnit   : chr  &quot;mg/l&quot; NA NA NA ...
+##  $ ResultComment                          : chr  NA NA NA NA ...</code></pre>
+<p>The results table can then be validated using <code>wqx_validate_results()</code>. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain (aka data dictionary).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wqx_validate_results</span>(results)</code></pre></div>
+<pre><code>## Checking results for missing columns...OK
+## Checking results for columns with missing values...OK
+## Checking results have units when value is not empty...OK
+## Checking results have detection condition when value is empty...OK
+## Checking results against WQX domain values
+##    ActivityType ...OK
+##    ActivityMediaName ...OK
+##    SampleCollectionEquipmentName ...OK
+##    CharacteristicName ...OK
+##    MethodSpeciation ...OK
+##    ResultMeasureQualifier ...OK
+##    ResultDetectionCondition ...OK
+##    ResultSampleFraction ...OK
+##    ResultStatusID ...OK
+##    ResultValueType ...OK
+##    ResultDetectionQuantitationLimitType ...OK
+##    ResultUnit ...OK
+##    ActivityStartTimeZone ...OK
+## Checking results for invalid methods...OK
+## 
+## Validation Complete (OK)</code></pre>
+<p>If any errors occur, they will be reported as a <code>Warning</code>, and the message <code>Validation Failed</code> will be shown at the end. Let’s set an invalid value to one of the columns and re-run the validation to see what an error looks like.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results_invalid &lt;-<span class="st"> </span>results
+results_invalid[<span class="dv">1</span>, <span class="st">&quot;CharacteristicName&quot;</span>] &lt;-<span class="st"> &quot;Moose&quot;</span>
+<span class="kw">wqx_validate_results</span>(results_invalid)</code></pre></div>
+<pre><code>## Checking results for missing columns...OK
+## Checking results for columns with missing values...OK
+## Checking results have units when value is not empty...OK
+## Checking results have detection condition when value is empty...OK
+## Checking results against WQX domain values
+##    ActivityType ...OK
+##    ActivityMediaName ...OK
+##    SampleCollectionEquipmentName ...OK
+##    CharacteristicName ...FAIL</code></pre>
+<pre><code>## Warning in wqx_validate_results(results_invalid): Invalid value(s) in
+## results column CharacteristicName: &quot;Moose&quot;</code></pre>
+<pre><code>##    MethodSpeciation ...OK
+##    ResultMeasureQualifier ...OK
+##    ResultDetectionCondition ...OK
+##    ResultSampleFraction ...OK
+##    ResultStatusID ...OK
+##    ResultValueType ...OK
+##    ResultDetectionQuantitationLimitType ...OK
+##    ResultUnit ...OK
+##    ActivityStartTimeZone ...OK
+## Checking results for invalid methods...OK
+## 
+## Validation Failed</code></pre>
+<p>The valid results table can be saved to a csv file and then imported to WQX (note that the <code>na=&quot;&quot;</code> is important, otherwise R will insert “NA” into the file, which WQX will not accept):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(results, <span class="dt">file=</span><span class="st">'results.csv'</span>, <span class="dt">na=</span><span class="st">&quot;&quot;</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
+</div>
+<div id="locations-table" class="section level1">
+<h1>Locations Table</h1>
+<p>The WQX Locations Table is generated using the <code>wqx_locations()</code> function, which also requires the database channel (<code>ch</code>) and a list of location IDs (<code>locations</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">locations &lt;-<span class="st"> </span><span class="kw">wqx_locations</span>(ch, <span class="dt">locations=</span><span class="kw">unique</span>(results$MonitoringLocationID))
+<span class="kw">str</span>(locations)</code></pre></div>
+<pre><code>## 'data.frame':    16 obs. of  9 variables:
+##  $ MonitoringLocationID                                 : chr  &quot;ABR006&quot; &quot;ABR028&quot; &quot;ABR049&quot; &quot;ALB006&quot; ...
+##  $ MonitoringLocationName                               : chr  &quot;Aberjona River at USGS Gaging Station in Winchester; the bank upstream of weir&quot; &quot;Aberjona River at Washington Street in Winchester; upstream side of the bridge &quot; &quot;Aberjona River at Salem Street in Woburn; downstream side of the bridge&quot; &quot;Alewife Brook at Broadway Bridge in Somerville; downstream of the bridge on the bank&quot; ...
+##  $ MonitoringLocationType                               : chr  &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; ...
+##  $ MonitoringLocationLatitude                           : num  42.4 42.5 42.5 42.4 42.4 ...
+##  $ MonitoringLocationLongitude                          : num  -71.1 -71.1 -71.1 -71.1 -71 ...
+##  $ MonitoringLocationHorizontalCollectionMethod         : chr  &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; ...
+##  $ MonitoringLocationHorizontalCoordinateReferenceSystem: chr  &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; ...
+##  $ MonitoringLocationCountyCode                         : chr  &quot;017&quot; &quot;017&quot; &quot;017&quot; &quot;017&quot; ...
+##  $ MonitoringLocationState                              : chr  &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; ...</code></pre>
+<p>The locations table can be validated using <code>wqx_validate_locations()</code>, which works similarly to <code>wqx_validate_results()</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wqx_validate_locations</span>(locations)</code></pre></div>
+<pre><code>## Checking locations for missing columns...OK
+## Checking locations for columns with missing values...OK
+## Checking locations against WQX domain values
+##    MonitoringLocationType ...OK
+##    MonitoringLocationHorizontalCollectionMethod ...OK
+##    MonitoringLocationHorizontalCoordinateReferenceSystem ...OK
+## 
+## Validation Complete (OK)</code></pre>
+<p>The locations table can then be saved to a csv file for importing to WQX:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(locations, <span class="dt">file=</span><span class="st">'locations.csv'</span>, <span class="dt">na=</span><span class="st">&quot;&quot;</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

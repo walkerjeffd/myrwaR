@@ -1,0 +1,91 @@
+---
+title: "WQX Export"
+author: "Jeffrey D. Walker, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{WQX Export}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document shows how to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX.
+
+There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. The `myrwaR` package provides functions that extract data from the database, and convert these datasets to formats accepted by WQX.
+
+# Open Database Connection
+
+In order to extract data from the water quality database, first create a connection channel to the database:
+
+```{r db-connect}
+library(myrwaR)
+base_dir <- 'D:/Dropbox/Work/mystic/db'
+db_path <- file.path(base_dir, "MysticDB_20160208.accdb")
+ch <- db_connect(db_path)
+```
+
+# Projects Table
+
+The WQX Projects Table is generated using the `wqx_projects()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`).
+
+```{r load-projects}
+projects <- wqx_projects(ch, projects='BASE')
+str(projects)
+```
+
+This file can then be saved to a csv file, which can then be imported to WQX:
+
+```{r csv-projects, eval=FALSE}
+write.csv(projects, file='projects.csv', row.names=FALSE)
+```
+
+# Results Table
+
+The WQX Results Table is generated using the `wqx_results()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`).
+
+```{r load-results}
+results <- wqx_results(ch, projects='BASE')
+str(results)
+```
+
+The results table can then be validated using `wqx_validate_results()`. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain (aka data dictionary).
+
+```{r validate-results}
+wqx_validate_results(results)
+```
+
+If any errors occur, they will be reported as a `Warning`, and the message `Validation Failed` will be shown at the end. Let's set an invalid value to one of the columns and re-run the validation to see what an error looks like.
+
+```{r validate-results-invalid}
+results_invalid <- results
+results_invalid[1, "CharacteristicName"] <- "Moose"
+wqx_validate_results(results_invalid)
+```
+
+The valid results table can be saved to a csv file and then imported to WQX (note that the `na=""` is important, otherwise R will insert "NA" into the file, which WQX will not accept):
+
+```{r csv-results, eval=FALSE}
+write.csv(results, file='results.csv', na="", row.names=FALSE)
+```
+
+
+# Locations Table
+
+The WQX Locations Table is generated using the `wqx_locations()` function, which also requires the database channel (`ch`) and a list of location IDs (`locations`).
+
+```{r load-locations}
+locations <- wqx_locations(ch, locations=unique(results$MonitoringLocationID))
+str(locations)
+```
+
+The locations table can be validated using `wqx_validate_locations()`, which works similarly to `wqx_validate_results()`:
+
+```{r validate-locations}
+wqx_validate_locations(locations)
+```
+
+The locations table can then be saved to a csv file for importing to WQX:
+
+```{r csv-locations, eval=FALSE}
+write.csv(locations, file='locations.csv', na="", row.names=FALSE)
+```

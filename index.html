@@ -20,7 +20,7 @@
     <header>
       <div class="inner">
         <h1>myrwaR</h1>
-        <h2>R package for the Mystic River Watershed Association</h2>
+        <h2>R Package for the Mystic River Watershed Association</h2>
         <a href="https://github.com/walkerjeffd/myrwaR" class="button"><small>View project on</small> GitHub</a>
       </div>
     </header>
@@ -28,12 +28,35 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h3><a id="welcome" class="anchor" href="#welcome" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome</h3>
-<p>This package contains tools and functions for analyzing, exporting, and reviewing the MyRWA water quality database.</p>
+          <h3>Welcome</h3>
 
-<h3><a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+    			<p>This package contains tools and functions for analyzing, exporting, and reviewing the MyRWA water quality database.</p>
 
-<p>Jeffrey D Walker, PhD (<a href="https://github.com/walkerjeffd" class="user-mention">@walkerjeffd</a>)</p>
+          <h3>Installation</h3>
+
+          <p>The <code>myrwaR</code> package can only be installed from Github (it is not available on CRAN). It can be installed using the <code>devtools</code> package, which you may need to install first.</p>
+
+<pre><code>install.packages('devtools')
+library(devtools)
+install_github('walkerjeffd/myrwaR')
+</code></pre>
+
+          <h3>Vignettes</h3>
+
+          <p>The <code>myrwaR</code> package includes a series of vignettes that explain how to use the various functions contained in the package.</p>
+
+          <ul>
+            <li><a href="inst/doc/database-functions.html">WQ Database Functions</a>: overview of functions for connecting to the MyRWA WQ database, extracting various datasets, and performing QAQC checks.</li>
+            <li><a href="inst/doc/precipitation-data.html">Functions for Loading and Analyzing Precipitation Data</a>: overview of functions for loading precipitation data from Excel files or USGS NWIS, computing antecedent precipitation, and analyzing discrete storm events.</li>
+            <li><a href="inst/doc/wqx-export.html">WQX Export Functions</a>: functions for exporting the MyRWA water quality data to WQX format for importing to STORET.</li>
+          </ul>
+
+          <p>Note that you will not be able to build the vignettes directly because they require paths to local files that are external to the package (e.g. the Access WQ database). However, you can view the vignettes in this site, and simply copy and paste the code into RStudio. Be sure to change the paths to files such as the database to match your local filesystem (the paths are usually defined at the top of each vignette).</p>
+
+    			<h3>Author</h3>
+
+    			<p>Jeffrey D Walker, PhD (<a href="https://github.com/walkerjeffd" class="user-mention">@walkerjeffd</a>, <a href="http://walkerenvres.com">walkerenvres.com</a>)</p>
+        
         </section>
 
         <aside id="sidebar">

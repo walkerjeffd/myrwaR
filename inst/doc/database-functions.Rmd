@@ -1,0 +1,105 @@
+---
+title: "MyRWA Database Functions"
+author: "Jeffrey D. Walker, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Database Function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+base_dir <- 'D:/Dropbox/Work/mystic/db'
+db_path <- file.path(base_dir, "MysticDB_20160208.accdb")
+```
+
+The `myrwaR` package includes a set of functions for retrieving data from the MyRWA Water Quality Access Database. To load the package:
+
+```{r load-package}
+library(myrwaR)
+```
+
+## Connecting to the Database
+
+To connect to the database, use `db_connect()` and specify the path to the database, which returns a connection handler that is later used to retrieve the data.
+
+```{r connect}
+ch <- db_connect(path = db_path)
+```
+
+## Retrieving Data from Any Table
+
+The `db_list_tables()` function lists the names of tables in the database (note that `dplyr` has 
+a function with the same name, so we need to namespace it with `myrwaR::`):
+
+```{r list-tables}
+myrwaR::db_list_tables(ch)
+```
+
+To load the data from any one of these tables, use `db_table()`. For example, to get the `Location` table:
+
+```{r locations}
+locations <- db_table(ch, table_name = "Location")
+str(locations)
+```
+
+
+## Retrieving Water Quality Data
+
+If a database connection has already been created, water quality data can be retrieved using `db_results()`. This function will automatically join the `Visit` and `Result` tables to provide the location IDs, datetimes, and useful attributes for each row in the `Result` table.
+
+```{r results}
+results <- db_results(ch)
+```
+
+## Water Quality Convenience Function
+
+Finally, to connect to the database and retrieve the water quality data in one fell swoop, use the `load_wq()` function. The function will connect to the database, and then merge the `Result`, `Visit`, and `Location` database tables into a single dataframe.
+
+```{r load-wq}
+wq <- load_wq(path = db_path, sample_types = c("S"), exclude_flags = TRUE)
+str(wq)
+```
+
+The `sample_types` parameter lets you specify which sample types to include in the data frame. By default, it will only return routine samples ("S"). To include other sample types such as field duplicates and field blanks, just add other SampleType IDs `sample_types = c("S", "FD", "FB")`. To see a complete list of sample types, just load the `SampleType` table: `db_table(ch, table_name="SampleType")`.
+
+The `exclude_flags` parameter specifies whether the resulting data frame should exclude flagged samples (default is `TRUE`). To include the flagged samples, set this to `FALSE`.
+
+## Closing the Connection
+
+To close a connection, simply use the `close()` function:
+
+```{r close}
+close(ch)
+```
+
+# QAQC Procedures
+
+## Version Comparison
+
+The `compare_database()` function summarizes changes between to database versions. This function currently loads the Result, Visit, and Location tables and identifies any rows that have been added or removed. Note that this does not look at changes to values of existing rows, only row additions and removals.
+
+```{r compare}
+compare_database(old_path = file.path(base_dir, "MysticDB_20160120.accdb"),
+                 new_path = file.path(base_dir, "MysticDB_20160208.accdb"))
+```
+
+The `compare_database()` function can also save the output to a text file by setting the `log_file` argument.
+
+```{r compare-log, eval=FALSE}
+compare_database(old_path = file.path(base_dir, "MysticDB_20150227.accdb"),
+                 new_path = file.path(base_dir, "MysticDB_20150529.accdb"),
+                 log_file = file.path(base_dir, 'compare_20150227_20150529.txt'))
+```
+
+## Database QAQC Checks
+
+The `db_qaqc_suite()` runs a series of checks on the Result and Visit tables in the database. These checks are intended to find invalid values in each column of these tables. Three types of checks include lower/upper case consistency, the presence of empty strings (e.g. `""`), and untrimmed strings (e.g. `"FD "`). Because Access does not enforce consistency across these issues, they can cause issues when importing the results to R, which does require consistency. This function will report which columns failed, the reason, and the number of rows that failed each check. The specific rows that failed can be shown by setting `print.values=TRUE`. 
+
+```{r qaqc-suite}
+ch <- db_connect(db_path)
+db_qaqc_suite(ch, print.rows=FALSE)
+close(ch)
+```
