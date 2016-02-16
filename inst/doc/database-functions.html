@@ -76,16 +76,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 
 
-<p>The <code>myrwaR</code> package includes a set of functions for retrieving data from the MyRWA Water Quality Access Database. To load the package:</p>
+<p>The <code>myrwaR</code> package includes a set of functions for retrieving data from the MyRWA Water Quality Access Database. First, we need to load the package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(myrwaR)</code></pre></div>
+<div id="accessing-the-database" class="section level1">
+<h1>Accessing the Database</h1>
 <div id="connecting-to-the-database" class="section level2">
 <h2>Connecting to the Database</h2>
 <p>To connect to the database, use <code>db_connect()</code> and specify the path to the database, which returns a connection handler that is later used to retrieve the data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(<span class="dt">path =</span> db_path)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">base_dir &lt;-<span class="st"> 'D:/Dropbox/Work/mystic/db'</span>
+db_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20160208.accdb&quot;</span>)
+ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(<span class="dt">path =</span> db_path)</code></pre></div>
 </div>
 <div id="retrieving-data-from-any-table" class="section level2">
 <h2>Retrieving Data from Any Table</h2>
-<p>The <code>db_list_tables()</code> function lists the names of tables in the database (note that <code>dplyr</code> has a function with the same name, so we need to namespace it with <code>myrwaR::</code>):</p>
+<p>The <code>db_list_tables()</code> function lists the names of tables in the database (note that <code>dplyr</code> has a function with the same name, so you may need to namespace it with <code>myrwaR::</code>):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myrwaR::<span class="kw">db_list_tables</span>(ch)</code></pre></div>
 <pre><code>#&gt;  [1] &quot;20130622_VisitPrecip&quot;        &quot;20130925_TableauAnnualMeans&quot;
 #&gt;  [3] &quot;20140510_VisitPrecip&quot;        &quot;ActionLimit&quot;                
@@ -126,12 +130,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="retrieving-water-quality-data" class="section level2">
 <h2>Retrieving Water Quality Data</h2>
-<p>If a database connection has already been created, water quality data can be retrieved using <code>db_results()</code>. This function will automatically join the <code>Visit</code> and <code>Result</code> tables to provide the location IDs, datetimes, and useful attributes for each row in the <code>Result</code> table.</p>
+<p>If a database connection has already been created, water quality data can be retrieved using <code>db_results()</code>. This function will automatically join the <code>Visit</code> and <code>Result</code> tables to provide the location IDs, datetimes, and useful attributes for each row in the <code>Result</code> table. Note that this function will not join the <code>Location</code> table, and thus not contain latitudes and longitudes. See the <code>load_wq()</code> function in the next section.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">db_results</span>(ch)</code></pre></div>
+<pre><code>#&gt; Warning: closing unused RODBC handle 8</code></pre>
 </div>
-<div id="water-quality-convenience-function" class="section level2">
-<h2>Water Quality Convenience Function</h2>
-<p>Finally, to connect to the database and retrieve the water quality data in one fell swoop, use the <code>load_wq()</code> function. The function will connect to the database, and then merge the <code>Result</code>, <code>Visit</code>, and <code>Location</code> database tables into a single dataframe.</p>
+<div id="water-quality-dataset-function" class="section level2">
+<h2>Water Quality Dataset Function</h2>
+<p>Finally, to connect to the database and retrieve the water quality data with the location information, use the <code>load_wq()</code> function (note that the name of this function differs from other database functions to maintain consistency with older R scripts used by MyRWA). The <code>load_wq()</code> function will connect to the database, and then merge the <code>Result</code>, <code>Visit</code>, and <code>Location</code> database tables into a single dataframe.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">wq &lt;-<span class="st"> </span><span class="kw">load_wq</span>(<span class="dt">path =</span> db_path, <span class="dt">sample_types =</span> <span class="kw">c</span>(<span class="st">&quot;S&quot;</span>), <span class="dt">exclude_flags =</span> <span class="ot">TRUE</span>)
 <span class="kw">str</span>(wq)</code></pre></div>
 <pre><code>#&gt; 'data.frame':    183279 obs. of  33 variables:
@@ -168,7 +173,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 #&gt;  $ StaffGage          : int  0 0 0 0 0 0 0 0 0 0 ...
 #&gt;  $ County             : Factor w/ 2 levels &quot;Middlesex&quot;,&quot;Suffolk&quot;: 1 1 1 1 1 1 1 1 1 1 ...
 #&gt;  $ CatchmentArea_Sqmi : num  NA NA NA NA NA NA NA NA NA NA ...</code></pre>
-<p>The <code>sample_types</code> parameter lets you specify which sample types to include in the data frame. By default, it will only return routine samples (“S”). To include other sample types such as field duplicates and field blanks, just add other SampleType IDs <code>sample_types = c(&quot;S&quot;, &quot;FD&quot;, &quot;FB&quot;)</code>. To see a complete list of sample types, just load the <code>SampleType</code> table: <code>db_table(ch, table_name=&quot;SampleType&quot;)</code>.</p>
+<p>The <code>sample_types</code> parameter lets you specify which sample types to include in the data frame. By default, it will only return routine samples (<code>&quot;S&quot;</code>). To include other sample types such as field duplicates and field blanks, just add other SampleType IDs <code>sample_types = c(&quot;S&quot;, &quot;FD&quot;, &quot;FB&quot;)</code>, or set <code>sample_types = NULL</code> to retrieve all sample types. To see a complete list of sample types, load the <code>SampleType</code> table: <code>db_table(ch, table_name=&quot;SampleType&quot;)</code>.</p>
 <p>The <code>exclude_flags</code> parameter specifies whether the resulting data frame should exclude flagged samples (default is <code>TRUE</code>). To include the flagged samples, set this to <code>FALSE</code>.</p>
 </div>
 <div id="closing-the-connection" class="section level2">
@@ -176,11 +181,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>To close a connection, simply use the <code>close()</code> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">close</span>(ch)</code></pre></div>
 </div>
+</div>
 <div id="qaqc-procedures" class="section level1">
 <h1>QAQC Procedures</h1>
 <div id="version-comparison" class="section level2">
 <h2>Version Comparison</h2>
-<p>The <code>compare_database()</code> function summarizes changes between to database versions. This function currently loads the Result, Visit, and Location tables and identifies any rows that have been added or removed. Note that this does not look at changes to values of existing rows, only row additions and removals.</p>
+<p>The <code>compare_database()</code> function summarizes changes between to database versions. This function loads the <code>Result</code>, <code>Visit</code>, and <code>Location</code> tables from each database version, and then summarizes how many rows have been added or removed from the first to the second version. Note that this does not look at changes to the values of each row, it only checks for row additions and removals.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">compare_database</span>(<span class="dt">old_path =</span> <span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20160120.accdb&quot;</span>),
                  <span class="dt">new_path =</span> <span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20160208.accdb&quot;</span>))</code></pre></div>
 <pre><code>#&gt; MyRWA WQ Database Comparison
@@ -243,14 +249,24 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 #&gt; # Rows Added: 0 
 #&gt; 
 #&gt; # Rows Removed: 0</code></pre>
-<p>The <code>compare_database()</code> function can also save the output to a text file by setting the <code>log_file</code> argument.</p>
+<p>The output of the <code>compare_database()</code> function can also be saves to a text file by setting the <code>log_file</code> argument.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">compare_database</span>(<span class="dt">old_path =</span> <span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20150227.accdb&quot;</span>),
                  <span class="dt">new_path =</span> <span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20150529.accdb&quot;</span>),
                  <span class="dt">log_file =</span> <span class="kw">file.path</span>(base_dir, <span class="st">'compare_20150227_20150529.txt'</span>))</code></pre></div>
 </div>
 <div id="database-qaqc-checks" class="section level2">
 <h2>Database QAQC Checks</h2>
-<p>The <code>db_qaqc_suite()</code> runs a series of checks on the Result and Visit tables in the database. These checks are intended to find invalid values in each column of these tables. Three types of checks include lower/upper case consistency, the presence of empty strings (e.g. <code>&quot;&quot;</code>), and untrimmed strings (e.g. <code>&quot;FD &quot;</code>). Because Access does not enforce consistency across these issues, they can cause issues when importing the results to R, which does require consistency. This function will report which columns failed, the reason, and the number of rows that failed each check. The specific rows that failed can be shown by setting <code>print.values=TRUE</code>.</p>
+<p>The <code>db_qaqc_suite()</code> function runs a series of checks on the <code>Result</code> and <code>Visit</code> tables These checks are designed to find invalid values in each column of these tables. The types of checks include:</p>
+<ul>
+<li>inconsitencies in lower/upper case</li>
+<li>presence of empty strings, which should be replaced with NA’s (e.g. <code>&quot;&quot;</code>)</li>
+<li>presence of untrimmed strings that contain an extra space before or after the value (e.g. <code>&quot;FD &quot;</code>)</li>
+<li>presence of <code>NA</code> in columns that should not have missing values</li>
+<li>invalid date ranges (all dates should be between 1900-01-01 and the today’s date)</li>
+<li>invalid relationships between tables (e.g. <code>Result.Units-&gt;Units.ID</code>, <code>Result.FlagID-&gt;ResultFlag.ID</code>, <code>Visit.SampleTypeID-&gt;SampleType.ID</code>, and <code>Visit.ProjectID-&gt;Project.ID</code>)</li>
+</ul>
+<p>Note that the first three checks are included because Microsoft Access does not enforce consistency across these issues and thus may go unnoticed within the database. However, these issues can cause problems when importing the results into R, which does require these consistencies.</p>
+<p>For each set of checks, <code>db_qaqc_suite()</code> function will report which columns failed, the reason, and the number of rows that failed each check. The specific rows that failed can be shown by setting <code>print.values=TRUE</code> (not shown here for brevity).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)
 <span class="kw">db_qaqc_suite</span>(ch, <span class="dt">print.rows=</span><span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>#&gt; Loading tables...done

@@ -121,13 +121,17 @@ ggplot(prcp[(24*15):(24*30), ], aes(Datetime)) +
   geom_line(aes(y=Precip48.6, color="Precip48.6")) +
   scale_color_manual(NULL,
                      labels=c(Precip="Hourly Precip",
-                              Precip24="24-hr Total Precip", Precip24.max="24-hr Max Precip",
-                              Precip48="48-hr Total Precip", Precip48.6="48-hour Total Precip (6-hr Delay)"),
+                              Precip24="24-hr Total Precip", 
+                              Precip24.max="24-hr Max Precip",
+                              Precip48="48-hr Total Precip", 
+                              Precip48.6="48-hour Total Precip (6-hr Delay)"),
                      values=c(Precip="black",
-                              Precip24="red", Precip24.max="orange",
-                              Precip48="deepskyblue", Precip48.6="olivedrab3")) +
-  theme(legend.position=c(1, 1),
-        legend.justification=c(1, 1),
+                              Precip24="red", 
+                              Precip24.max="orange",
+                              Precip48="deepskyblue", 
+                              Precip48.6="olivedrab3")) +
+  theme(legend.position=c(0, 1),
+        legend.justification=c(0, 1),
         legend.background=element_blank())
 ```
 
@@ -145,12 +149,13 @@ wq_prcp <- append_weather(wq, prcp, period = 48, precip.threshold = 0.25, precip
 str(wq_prcp)
 ```
 
+Note that the last two columns are `Precip.48` and `Weather`, which were created by the `append_weather()` function. The antecedent precipitation column named according to the scheme: `<precip.name>.<period>` where `precip.name` and `period` are defined as arguments to the function.
 
 # Storm Events
 
-Identify individual storm events can also be useful for analyzing water quality. The `myrwaR` package includes two functions related to events. The first function `assign_precip_events()` analyzes an hour precipitation timeseries and assigns a unique ID to each dry and wet event. The second function takes that result and generates a summary table listing the properties of each event.
+It can also be useful when analyzing water quality data to identify and summarize discrete storm events. The `myrwaR` package includes two functions related to storm events. The first function, `assign_precip_events()`, takes an hour precipitation timeseries and assigns a unique ID to each dry and wet event. The second function, `precip_event_summary()` takes the result of `assign_precip_events()` and generates a summary table listing the properties of each event (e.g. duration, total depth, max intensity, etc.).
 
-## Identify Events
+## Identifyng Storm Events
 
 For this example, we'll start with the hourly precipitation for March 2010. The plot below shows some small and some large events.
 
@@ -200,7 +205,7 @@ filter(prcp_032010_evt, EventType == "Wet") %>%
 
 ## Summarize Events
 
-After assigning unique EventIDs to the hourly precipitation timeseries, the `precip_event_summary()` function can be used to create a summary of these events listing various characteristics such as the start/end times, the duration, total precipitation, peak precipitation rate, etc.
+After assigning unique `EventIDs` to the hourly precipitation timeseries, the `precip_event_summary()` function can be used to create a summary of these events and list various characteristics such as the start/end times, duration, total precipitation depth, peak precipitation rate, etc.
 
 ```{r prcp-evt-summary}
 prcp_032010_evt_summary <- precip_event_summary(prcp_032010_evt)
@@ -217,7 +222,7 @@ filter(prcp_032010_evt_summary, EventType=="Wet") %>%
 
 ## Adding Events to a WQ Dataset
 
-The precipitation events dataframe can be joined to the water quality dataset based on the date/time stamp rounded to the nearest hour. For example, the following code loads the baseline wq and precipitation datasets for 2010-2011, identifies the precipitation events, and then joins this information with the wq dataset:
+The precipitation events dataframe can be joined to the water quality dataset using the date/time stamp of each water quality result, and the date/time of the precipitation timeseries. However, to perform this join, the date/time stamp in the water quality dataset must first be rounded to the nearest hour. For example, the following code loads the baseline wq and precipitation datasets for 2010-2011, identifies the precipitation events, and then joins this information with the wq dataset:
 
 ```{r prcp-evt-wq-1}
 wq <- load_wq("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb", projects="BASE", sample_types="S", exclude_flags=FALSE)
@@ -228,7 +233,7 @@ prcp <- load_precip_from_xls(path = xls_path, as.type = "dataframe")
 prcp <- dplyr::filter(prcp, year(Datetime) %in% 2010:2010)
 ```
 
-We then assign the events to the hourly precipitation dataset
+We then assign the events to the hourly precipitation dataset:
 
 ```{r prcp-evt-wq-2}
 prcp_evt <- assign_precip_events(x = prcp)
@@ -240,11 +245,11 @@ Finally, add a new column `Datehour` to the `wq` data frame which is the `Dateti
 
 ```{r prcp-evt-wq-3}
 wq <- mutate(wq, Datehour = floor_date(Datetime, unit = "hour"))
-wq_prcp_evt <- left_join(wq, prcp_evt, by=c(Datehour="Datetime"))
+wq_prcp_evt <- left_join(wq, prcp_evt, by=c("Datehour"="Datetime"))
 str(wq_prcp_evt)
 ```
 
-We can also add the event summary data to the `wq` data frame:
+We can also add the event summary data to the `wq` data frame by joining on the `EventID` and `EventType` columns:
 
 ```{r prcp-evt-wq-4}
 prcp_evt_summary <- precip_event_summary(prcp_evt)

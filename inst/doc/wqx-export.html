@@ -76,11 +76,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 
 
-<p>This document shows how to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX.</p>
-<p>There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. The <code>myrwaR</code> package provides functions that extract data from the database, and convert these datasets to formats accepted by WQX.</p>
+<p>This document demonstrates how to use the <code>myrwaR</code> package to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX/STORET.</p>
+<p>There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. For each of these three dataset types, <code>myrwaR</code> provides a corresponding <code>wqx_&lt;type&gt;()</code> function that extracts the data from the database, convert it to the format accepted by WQX, and validates the dataset against WQX criteria and allowed values (aka WQX domain values). Note that the WQX domain values are provided in the package source code in the folder <code>inst/extdata/wqx_domain/</code>.</p>
 <div id="open-database-connection" class="section level1">
 <h1>Open Database Connection</h1>
-<p>In order to extract data from the water quality database, first create a connection channel to the database:</p>
+<p>In order to extract data from the water quality database, first we need to create a connection to the database:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(myrwaR)
 base_dir &lt;-<span class="st"> 'D:/Dropbox/Work/mystic/db'</span>
 db_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(base_dir, <span class="st">&quot;MysticDB_20160208.accdb&quot;</span>)
@@ -88,19 +88,19 @@ ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)</co
 </div>
 <div id="projects-table" class="section level1">
 <h1>Projects Table</h1>
-<p>The WQX Projects Table is generated using the <code>wqx_projects()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>).</p>
+<p>The WQX Projects table is generated using the <code>wqx_projects()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>). For example, to export the baseline (<code>Project.ID=&quot;BASE&quot;</code>) project to WQX format.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">projects &lt;-<span class="st"> </span><span class="kw">wqx_projects</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
 <span class="kw">str</span>(projects)</code></pre></div>
 <pre><code>## 'data.frame':    1 obs. of  3 variables:
 ##  $ ProjectID         : chr &quot;BASE&quot;
 ##  $ ProjectName       : chr &quot;Baseline Mystic River Watershed MA&quot;
 ##  $ ProjectDescription: chr &quot;Water quality data collected since 2000 by MyRWA from fifteen sites across the watershed that documents trends in water quality&quot;| __truncated__</code></pre>
-<p>This file can then be saved to a csv file, which can then be imported to WQX:</p>
+<p>This data frame can be saved to a csv file, which can then be imported to WQX:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(projects, <span class="dt">file=</span><span class="st">'projects.csv'</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
 </div>
 <div id="results-table" class="section level1">
 <h1>Results Table</h1>
-<p>The WQX Results Table is generated using the <code>wqx_results()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>).</p>
+<p>The WQX Results table is generated using the <code>wqx_results()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>). For example, to get the results for the baseline sampling program:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">wqx_results</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
 <span class="kw">str</span>(results)</code></pre></div>
 <pre><code>## 'data.frame':    21846 obs. of  25 variables:
@@ -129,7 +129,7 @@ ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)</co
 ##  $ ResultDetectionQuantitationLimitMeasure: num  0.1 NA NA NA NA NA NA NA NA 0.1 ...
 ##  $ ResultDetectionQuantitationLimitUnit   : chr  &quot;mg/l&quot; NA NA NA ...
 ##  $ ResultComment                          : chr  NA NA NA NA ...</code></pre>
-<p>The results table can then be validated using <code>wqx_validate_results()</code>. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain (aka data dictionary).</p>
+<p>The results table can then be validated using <code>wqx_validate_results()</code>. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain dictionary.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wqx_validate_results</span>(results)</code></pre></div>
 <pre><code>## Checking results for missing columns...OK
 ## Checking results for columns with missing values...OK
@@ -184,7 +184,7 @@ results_invalid[<span class="dv">1</span>, <span class="st">&quot;Characteristic
 </div>
 <div id="locations-table" class="section level1">
 <h1>Locations Table</h1>
-<p>The WQX Locations Table is generated using the <code>wqx_locations()</code> function, which also requires the database channel (<code>ch</code>) and a list of location IDs (<code>locations</code>).</p>
+<p>The WQX Locations Table is generated using the <code>wqx_locations()</code> function, which also requires the database channel (<code>ch</code>) and a list of location IDs (<code>locations</code>). The location IDs can be extracted using the <code>unique()</code> function on the <code>MonitoringLocationID</code> column of the <code>results</code> data frame.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">locations &lt;-<span class="st"> </span><span class="kw">wqx_locations</span>(ch, <span class="dt">locations=</span><span class="kw">unique</span>(results$MonitoringLocationID))
 <span class="kw">str</span>(locations)</code></pre></div>
 <pre><code>## 'data.frame':    16 obs. of  9 variables:
@@ -207,7 +207,7 @@ results_invalid[<span class="dv">1</span>, <span class="st">&quot;Characteristic
 ##    MonitoringLocationHorizontalCoordinateReferenceSystem ...OK
 ## 
 ## Validation Complete (OK)</code></pre>
-<p>The locations table can then be saved to a csv file for importing to WQX:</p>
+<p>The locations table can then be saved to a csv file for importing to WQX (note again the <code>na=&quot;&quot;</code> argument):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(locations, <span class="dt">file=</span><span class="st">'locations.csv'</span>, <span class="dt">na=</span><span class="st">&quot;&quot;</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
 </div>
 

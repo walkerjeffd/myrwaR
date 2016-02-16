@@ -59,13 +59,17 @@ ggplot(prcp[(24*15):(24*30), ], aes(Datetime)) +
   geom_line(aes(y=Precip48.6, color="Precip48.6")) +
   scale_color_manual(NULL,
                      labels=c(Precip="Hourly Precip",
-                              Precip24="24-hr Total Precip", Precip24.max="24-hr Max Precip",
-                              Precip48="48-hr Total Precip", Precip48.6="48-hour Total Precip (6-hr Delay)"),
+                              Precip24="24-hr Total Precip", 
+                              Precip24.max="24-hr Max Precip",
+                              Precip48="48-hr Total Precip", 
+                              Precip48.6="48-hour Total Precip (6-hr Delay)"),
                      values=c(Precip="black",
-                              Precip24="red", Precip24.max="orange",
-                              Precip48="deepskyblue", Precip48.6="olivedrab3")) +
-  theme(legend.position=c(1, 1),
-        legend.justification=c(1, 1),
+                              Precip24="red", 
+                              Precip24.max="orange",
+                              Precip48="deepskyblue", 
+                              Precip48.6="olivedrab3")) +
+  theme(legend.position=c(0, 1),
+        legend.justification=c(0, 1),
         legend.background=element_blank())
 
 ## ----append-weather------------------------------------------------------
@@ -131,7 +135,7 @@ summary(prcp_evt)
 
 ## ----prcp-evt-wq-3-------------------------------------------------------
 wq <- mutate(wq, Datehour = floor_date(Datetime, unit = "hour"))
-wq_prcp_evt <- left_join(wq, prcp_evt, by=c(Datehour="Datetime"))
+wq_prcp_evt <- left_join(wq, prcp_evt, by=c("Datehour"="Datetime"))
 str(wq_prcp_evt)
 
 ## ----prcp-evt-wq-4-------------------------------------------------------

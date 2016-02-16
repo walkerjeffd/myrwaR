@@ -1,12 +1,12 @@
 ## ----setup, echo=FALSE---------------------------------------------------
 knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
-base_dir <- 'D:/Dropbox/Work/mystic/db'
-db_path <- file.path(base_dir, "MysticDB_20160208.accdb")
 
 ## ----load-package--------------------------------------------------------
 library(myrwaR)
 
 ## ----connect-------------------------------------------------------------
+base_dir <- 'D:/Dropbox/Work/mystic/db'
+db_path <- file.path(base_dir, "MysticDB_20160208.accdb")
 ch <- db_connect(path = db_path)
 
 ## ----list-tables---------------------------------------------------------

@@ -9,13 +9,13 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This document shows how to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX.
+This document demonstrates how to use the `myrwaR` package to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX/STORET.
 
-There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. The `myrwaR` package provides functions that extract data from the database, and convert these datasets to formats accepted by WQX.
+There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. For each of these three dataset types, `myrwaR` provides a corresponding `wqx_<type>()` function that extracts the data from the database, convert it to the format accepted by WQX, and validates the dataset against WQX criteria and allowed values (aka WQX domain values). Note that the WQX domain values are provided in the package source code in the folder `inst/extdata/wqx_domain/`.
 
 # Open Database Connection
 
-In order to extract data from the water quality database, first create a connection channel to the database:
+In order to extract data from the water quality database, first we need to create a connection to the database:
 
 ```{r db-connect}
 library(myrwaR)
@@ -26,14 +26,14 @@ ch <- db_connect(db_path)
 
 # Projects Table
 
-The WQX Projects Table is generated using the `wqx_projects()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`).
+The WQX Projects table is generated using the `wqx_projects()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`). For example, to export the baseline (`Project.ID="BASE"`) project to WQX format.
 
 ```{r load-projects}
 projects <- wqx_projects(ch, projects='BASE')
 str(projects)
 ```
 
-This file can then be saved to a csv file, which can then be imported to WQX:
+This data frame can be saved to a csv file, which can then be imported to WQX:
 
 ```{r csv-projects, eval=FALSE}
 write.csv(projects, file='projects.csv', row.names=FALSE)
@@ -41,14 +41,14 @@ write.csv(projects, file='projects.csv', row.names=FALSE)
 
 # Results Table
 
-The WQX Results Table is generated using the `wqx_results()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`).
+The WQX Results table is generated using the `wqx_results()` function, which requires the database channel (`ch`) and a list of one or more project IDs (`projects`). For example, to get the results for the baseline sampling program:
 
 ```{r load-results}
 results <- wqx_results(ch, projects='BASE')
 str(results)
 ```
 
-The results table can then be validated using `wqx_validate_results()`. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain (aka data dictionary).
+The results table can then be validated using `wqx_validate_results()`. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain dictionary.
 
 ```{r validate-results}
 wqx_validate_results(results)
@@ -68,10 +68,9 @@ The valid results table can be saved to a csv file and then imported to WQX (not
 write.csv(results, file='results.csv', na="", row.names=FALSE)
 ```
 
-
 # Locations Table
 
-The WQX Locations Table is generated using the `wqx_locations()` function, which also requires the database channel (`ch`) and a list of location IDs (`locations`).
+The WQX Locations Table is generated using the `wqx_locations()` function, which also requires the database channel (`ch`) and a list of location IDs (`locations`). The location IDs can be extracted using the `unique()` function on the `MonitoringLocationID` column of the `results` data frame.
 
 ```{r load-locations}
 locations <- wqx_locations(ch, locations=unique(results$MonitoringLocationID))
@@ -84,7 +83,7 @@ The locations table can be validated using `wqx_validate_locations()`, which wor
 wqx_validate_locations(locations)
 ```
 
-The locations table can then be saved to a csv file for importing to WQX:
+The locations table can then be saved to a csv file for importing to WQX (note again the `na=""` argument):
 
 ```{r csv-locations, eval=FALSE}
 write.csv(locations, file='locations.csv', na="", row.names=FALSE)
