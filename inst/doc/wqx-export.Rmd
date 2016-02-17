@@ -1,10 +1,10 @@
 ---
-title: "WQX Export"
+title: "Functions for Export MyRWA Data to WQX Format"
 author: "Jeffrey D. Walker, PhD"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{WQX Export}
+  %\VignetteIndexEntry{WQX Export Functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
