@@ -1,0 +1,109 @@
+---
+title: "Functions for Retrieving MyRWA Data from STORET"
+author: "Jeffrey D. Walker, PhD"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{STORET Retrieval Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document describes functions in the `myrwaR` package for handling STORET data. First, we'll walk through how to fetch MyRWA data that is currently in STORET. Then we will compare the STORET dataset to what is currently in the Access database.
+
+```{r setup, message = FALSE, warning = FALSE}
+library(myrwaR)
+library(lubridate)
+library(dplyr)
+library(tidyr)
+```
+
+# Fetching Data from STORET
+
+## Locations Table
+
+The MyRWA locations currently in STORET can be fetched using the `storet_locations()` function. This function will download a zip file from STORET, unzip the contents, and load the resulting `station.csv` into a data frame. Note that `verbose` is optional and `TRUE` by default, but you can set it to `FALSE` to suppress the log output.
+
+```{r loc}
+st_locations <- storet_locations(verbose = TRUE)
+str(st_locations)
+```
+
+## Results Table
+
+The MyRWA results table currently in STORET can be fetched using the `storet_results()` function. This function will download a zip file from STORET, unzip the contents, and load the resulting `results.csv` into a data frame. Note that the `verbose` argument can be used here too.
+
+```{r res}
+st_results <- storet_results()
+str(st_results)
+```
+
+# Comparing STORET Data to MyRWA Database
+
+This section compares the number of samples by different variables (e.g. location, characteristic, year) between STORET and the current water quality database.
+
+First, we need to extract the dataset from the current database using the function `wqx_results()` (this will convert the dataset to WQX format, which is similar, though not identical, to the format provided by STORET):
+
+```{r db-results}
+ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
+db_results <- wqx_results(ch, projects='BASE')
+close(ch)
+```
+
+Next, we'll convert the `ActivityStartDate` column in the `db_results` data frame to `Date` types, and then filter for database samples that are within the range of dates in the STORET dataset (in case there are some sample dates that have been added to the database but not yet uploaded to STORET).
+
+```{r db-filter-dates}
+db_results <- mutate(db_results,
+                     ActivityStartDate    = as.Date(ActivityStartDate),
+                     MonitoringLocationID = paste("MYRWA", MonitoringLocationID, sep = "-")) %>%
+  filter(ActivityStartDate > min(st_results$ActivityStartDate),
+         ActivityStartDate < max(st_results$ActivityStartDate))
+```
+
+## Compare Sample Counts
+
+To compare the STORET dataset to that in the current database, we can use the `storet_compare_count()` function. This function takes one column from each dataset, counts the number of samples for each unique value, and then compares those counts between the two.
+
+### By Location ID
+
+First, let's compare the number of samples by Location ID:
+
+```{r cnt-loc}
+storet_compare_count(storet = st_results$MonitoringLocationIdentifier,
+                     db     = db_results$MonitoringLocationID,
+                     name   = "LocationID")
+```
+
+### By Characteristic Name
+
+Next, let's compare the number of samples by Characteristic Name:
+
+```{r cnt-char}
+storet_compare_count(storet = st_results$CharacteristicName,
+                     db     = db_results$CharacteristicName,
+                     name   = "CharacteristicName")
+```
+
+### By Year
+
+And then, we'll compare counts by Year:
+
+```{r cnt-yr}
+storet_compare_count(storet = year(st_results$ActivityStartDate),
+                     db     = year(db_results$ActivityStartDate),
+                     name   = "Year")
+```
+
+### By Date
+
+Finally, we'll compare counts by Date:
+
+```{r cnt-date}
+storet_compare_count(storet = st_results$ActivityStartDate,
+                     db     = db_results$ActivityStartDate,
+                     name   = "Date")
+```
+
+### Summary
+
+Based on these comparisons of sample counts, it's clear that there were two events (one in 2000 and one in 2015) that were uploaded to STORET but no longer exist in the database. And conversely, there were four events (all in 2015) that are in the database but were never uploaded to STORET. Oddly, those four have dates that are **before** the last date in STORET (`r max(st_results$ActivityStartDate)`).
