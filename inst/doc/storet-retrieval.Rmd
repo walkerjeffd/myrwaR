@@ -56,8 +56,8 @@ Next, we'll convert the `ActivityStartDate` column in the `db_results` data fram
 db_results <- mutate(db_results,
                      ActivityStartDate    = as.Date(ActivityStartDate),
                      MonitoringLocationID = paste("MYRWA", MonitoringLocationID, sep = "-")) %>%
-  filter(ActivityStartDate > min(st_results$ActivityStartDate),
-         ActivityStartDate < max(st_results$ActivityStartDate))
+  filter(ActivityStartDate >= min(st_results$ActivityStartDate),
+         ActivityStartDate <= max(st_results$ActivityStartDate))
 ```
 
 ## Compare Sample Counts
@@ -106,4 +106,5 @@ storet_compare_count(storet = st_results$ActivityStartDate,
 
 ### Summary
 
-Based on these comparisons of sample counts, it's clear that there were two events (one in 2000 and one in 2015) that were uploaded to STORET but no longer exist in the database. And conversely, there were four events (all in 2015) that are in the database but were never uploaded to STORET. Oddly, those four have dates that are **before** the last date in STORET (`r max(st_results$ActivityStartDate)`).
+These comparisons reveal that there are four baseline dates in the database that are not in yet STORET. This approach can thus be a useful tool for figuring out which sample events should be exported for the next STORET upload.
+

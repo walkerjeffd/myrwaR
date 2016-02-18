@@ -21,8 +21,8 @@ close(ch)
 db_results <- mutate(db_results,
                      ActivityStartDate    = as.Date(ActivityStartDate),
                      MonitoringLocationID = paste("MYRWA", MonitoringLocationID, sep = "-")) %>%
-  filter(ActivityStartDate > min(st_results$ActivityStartDate),
-         ActivityStartDate < max(st_results$ActivityStartDate))
+  filter(ActivityStartDate >= min(st_results$ActivityStartDate),
+         ActivityStartDate <= max(st_results$ActivityStartDate))
 
 ## ----cnt-loc-------------------------------------------------------------
 storet_compare_count(storet = st_results$MonitoringLocationIdentifier,
