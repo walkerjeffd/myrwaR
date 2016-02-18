@@ -4,19 +4,30 @@
 \alias{storet_compare_count}
 \title{Compare sample counts between STORET and Database}
 \usage{
-storet_compare_count(storet, db, name = "VAR")
+storet_compare_count(storet, db)
 }
 \arguments{
-\item{storet}{Vector from STORET}
+\item{storet}{A named list containing one or more columns from STORET results table}
 
-\item{db}{Vector from Database}
-
-\item{name}{Name of the variable}
+\item{db}{A named list containing one or more columns from Database results table}
 }
 \value{
 nothing
 }
 \description{
-Compares the number of samples per unique value in a single column between STORET and the database.
+Compares the number of samples for each unique set of values in one ore more
+columns between STORET and the database. If there are any differences, they will be
+printed to the console.
+}
+\details{
+Note that the names of the two list arguments must be identical. Any names can be used
+to rename the original columns, with the exception of "Source" and "n" which are added
+by this function.
+}
+\examples{
+storet_compare_count(storet = list(Date = storet_results$ActivityStartDate,
+                                   LocationID = storet_results$MonitoringLocationIdentifier),
+                     db     = list(Date = db_results$ActivityStartDate,
+                                   LocationID = db_results$MonitoringLocationID))
 }
 

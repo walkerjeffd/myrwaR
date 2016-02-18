@@ -1,3 +1,6 @@
+## ----setup, echo=FALSE---------------------------------------------------
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+
 ## ----db-connect----------------------------------------------------------
 library(myrwaR)
 base_dir <- 'D:/Dropbox/Work/mystic/db'

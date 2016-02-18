@@ -9,6 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>")
+```
+
 This document demonstrates how to use the `myrwaR` package to export data from the MyRWA Water Quality Database to csv files that can be imported into WQX/STORET.
 
 There are three types of datasets that can be imported to WQX: Projects, Locations, and Results. For each of these three dataset types, `myrwaR` provides a corresponding `wqx_<type>()` function that extracts the data from the database, convert it to the format accepted by WQX, and validates the dataset against WQX criteria and allowed values (aka WQX domain values). Note that the WQX domain values are provided in the package source code in the folder `inst/extdata/wqx_domain/`.

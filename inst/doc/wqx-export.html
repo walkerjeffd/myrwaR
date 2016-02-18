@@ -10,7 +10,7 @@
 
 <meta name="author" content="Jeffrey D. Walker, PhD" />
 
-<meta name="date" content="2016-02-17" />
+<meta name="date" content="2016-02-18" />
 
 <title>Functions for Export MyRWA Data to WQX Format</title>
 
@@ -72,7 +72,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="header">
 <h1 class="title">Functions for Export MyRWA Data to WQX Format</h1>
 <h4 class="author"><em>Jeffrey D. Walker, PhD</em></h4>
-<h4 class="date"><em>2016-02-17</em></h4>
+<h4 class="date"><em>2016-02-18</em></h4>
 </div>
 
 
@@ -91,10 +91,10 @@ ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)</co
 <p>The WQX Projects table is generated using the <code>wqx_projects()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>). For example, to export the baseline (<code>Project.ID=&quot;BASE&quot;</code>) project to WQX format.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">projects &lt;-<span class="st"> </span><span class="kw">wqx_projects</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
 <span class="kw">str</span>(projects)</code></pre></div>
-<pre><code>## 'data.frame':    1 obs. of  3 variables:
-##  $ ProjectID         : chr &quot;BASE&quot;
-##  $ ProjectName       : chr &quot;Baseline Mystic River Watershed MA&quot;
-##  $ ProjectDescription: chr &quot;Water quality data collected since 2000 by MyRWA from fifteen sites across the watershed that documents trends in water quality&quot;| __truncated__</code></pre>
+<pre><code>#&gt; 'data.frame':    1 obs. of  3 variables:
+#&gt;  $ ProjectID         : chr &quot;BASE&quot;
+#&gt;  $ ProjectName       : chr &quot;Baseline Mystic River Watershed MA&quot;
+#&gt;  $ ProjectDescription: chr &quot;Water quality data collected since 2000 by MyRWA from fifteen sites across the watershed that documents trends in water quality&quot;| __truncated__</code></pre>
 <p>This data frame can be saved to a csv file, which can then be imported to WQX:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(projects, <span class="dt">file=</span><span class="st">'projects.csv'</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
 </div>
@@ -103,82 +103,82 @@ ch &lt;-<span class="st"> </span><span class="kw">db_connect</span>(db_path)</co
 <p>The WQX Results table is generated using the <code>wqx_results()</code> function, which requires the database channel (<code>ch</code>) and a list of one or more project IDs (<code>projects</code>). For example, to get the results for the baseline sampling program:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results &lt;-<span class="st"> </span><span class="kw">wqx_results</span>(ch, <span class="dt">projects=</span><span class="st">'BASE'</span>)
 <span class="kw">str</span>(results)</code></pre></div>
-<pre><code>## 'data.frame':    21846 obs. of  25 variables:
-##  $ ProjectID                              : chr  &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; ...
-##  $ MonitoringLocationID                   : chr  &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; ...
-##  $ ActivityID                             : chr  &quot;MYRMMP:200801290806:L:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:L:FD&quot; ...
-##  $ ActivityType                           : chr  &quot;Quality Control Sample-Field Replicate&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Sample-Field Replicate&quot; ...
-##  $ ActivityMediaName                      : chr  &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; ...
-##  $ ActivityStartDate                      : chr  &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; ...
-##  $ ActivityStartTime                      : chr  &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; ...
-##  $ ActivityStartTimeZone                  : chr  &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; ...
-##  $ CharacteristicName                     : chr  &quot;Nitrite&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Enterococcus&quot; ...
-##  $ MethodSpeciation                       : chr  &quot;as N&quot; NA NA NA ...
-##  $ SampleCollectionMethod                 : chr  &quot;grab&quot; NA NA &quot;grab&quot; ...
-##  $ SampleCollectionEquipmentName          : chr  &quot;Water Bottle&quot; NA NA &quot;Water Bottle&quot; ...
-##  $ ResultDetectionCondition               : chr  &quot;Present Below Quantification Limit&quot; NA NA NA ...
-##  $ ResultValue                            : num  NA 11.41 73.62 46 0.23 ...
-##  $ ResultUnit                             : chr  &quot;mg/l&quot; &quot;mg/l&quot; &quot;%&quot; &quot;cfu/100ml&quot; ...
-##  $ ResultMeasureQualifier                 : chr  NA NA NA NA ...
-##  $ ResultSampleFraction                   : chr  &quot;Dissolved&quot; NA NA NA ...
-##  $ ResultStatusID                         : chr  &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; ...
-##  $ ResultValueType                        : chr  &quot;Actual&quot; &quot;Actual&quot; &quot;Calculated&quot; &quot;Actual&quot; ...
-##  $ ResultAnalyticalMethodID               : chr  &quot;4500-NO3(F)&quot; &quot;D888(B)&quot; &quot;D888(B)&quot; &quot;1600&quot; ...
-##  $ ResultAnalyticalMethodContext          : chr  &quot;APHA&quot; &quot;ASTM&quot; &quot;ASTM&quot; &quot;USEPA&quot; ...
-##  $ ResultDetectionQuantitationLimitType   : chr  &quot;Lower Quantitation Limit&quot; NA NA NA ...
-##  $ ResultDetectionQuantitationLimitMeasure: num  0.1 NA NA NA NA NA NA NA NA 0.1 ...
-##  $ ResultDetectionQuantitationLimitUnit   : chr  &quot;mg/l&quot; NA NA NA ...
-##  $ ResultComment                          : chr  NA NA NA NA ...</code></pre>
+<pre><code>#&gt; 'data.frame':    21846 obs. of  25 variables:
+#&gt;  $ ProjectID                              : chr  &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; &quot;BASE&quot; ...
+#&gt;  $ MonitoringLocationID                   : chr  &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; &quot;MYRMMP&quot; ...
+#&gt;  $ ActivityID                             : chr  &quot;MYRMMP:200801290806:L:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:F:FD&quot; &quot;MYRMMP:200801290806:L:FD&quot; ...
+#&gt;  $ ActivityType                           : chr  &quot;Quality Control Sample-Field Replicate&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Field Replicate Msr/Obs&quot; &quot;Quality Control Sample-Field Replicate&quot; ...
+#&gt;  $ ActivityMediaName                      : chr  &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; ...
+#&gt;  $ ActivityStartDate                      : chr  &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; &quot;2008-01-29&quot; ...
+#&gt;  $ ActivityStartTime                      : chr  &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; &quot;08:06:00&quot; ...
+#&gt;  $ ActivityStartTimeZone                  : chr  &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; &quot;EST&quot; ...
+#&gt;  $ CharacteristicName                     : chr  &quot;Nitrite&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Dissolved oxygen (DO)&quot; &quot;Enterococcus&quot; ...
+#&gt;  $ MethodSpeciation                       : chr  &quot;as N&quot; NA NA NA ...
+#&gt;  $ SampleCollectionMethod                 : chr  &quot;grab&quot; NA NA &quot;grab&quot; ...
+#&gt;  $ SampleCollectionEquipmentName          : chr  &quot;Water Bottle&quot; NA NA &quot;Water Bottle&quot; ...
+#&gt;  $ ResultDetectionCondition               : chr  &quot;Present Below Quantification Limit&quot; NA NA NA ...
+#&gt;  $ ResultValue                            : num  NA 11.41 73.62 46 0.23 ...
+#&gt;  $ ResultUnit                             : chr  &quot;mg/l&quot; &quot;mg/l&quot; &quot;%&quot; &quot;cfu/100ml&quot; ...
+#&gt;  $ ResultMeasureQualifier                 : chr  NA NA NA NA ...
+#&gt;  $ ResultSampleFraction                   : chr  &quot;Dissolved&quot; NA NA NA ...
+#&gt;  $ ResultStatusID                         : chr  &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; &quot;Final&quot; ...
+#&gt;  $ ResultValueType                        : chr  &quot;Actual&quot; &quot;Actual&quot; &quot;Calculated&quot; &quot;Actual&quot; ...
+#&gt;  $ ResultAnalyticalMethodID               : chr  &quot;4500-NO3(F)&quot; &quot;D888(B)&quot; &quot;D888(B)&quot; &quot;1600&quot; ...
+#&gt;  $ ResultAnalyticalMethodContext          : chr  &quot;APHA&quot; &quot;ASTM&quot; &quot;ASTM&quot; &quot;USEPA&quot; ...
+#&gt;  $ ResultDetectionQuantitationLimitType   : chr  &quot;Lower Quantitation Limit&quot; NA NA NA ...
+#&gt;  $ ResultDetectionQuantitationLimitMeasure: num  0.1 NA NA NA NA NA NA NA NA 0.1 ...
+#&gt;  $ ResultDetectionQuantitationLimitUnit   : chr  &quot;mg/l&quot; NA NA NA ...
+#&gt;  $ ResultComment                          : chr  NA NA NA NA ...</code></pre>
 <p>The results table can then be validated using <code>wqx_validate_results()</code>. This function will check for missing columns, missing values (only for columns where missing values are not allowed), and whether any values are not part of the WQX domain dictionary.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wqx_validate_results</span>(results)</code></pre></div>
-<pre><code>## Checking results for missing columns...OK
-## Checking results for columns with missing values...OK
-## Checking results have units when value is not empty...OK
-## Checking results have detection condition when value is empty...OK
-## Checking results against WQX domain values
-##    ActivityType ...OK
-##    ActivityMediaName ...OK
-##    SampleCollectionEquipmentName ...OK
-##    CharacteristicName ...OK
-##    MethodSpeciation ...OK
-##    ResultMeasureQualifier ...OK
-##    ResultDetectionCondition ...OK
-##    ResultSampleFraction ...OK
-##    ResultStatusID ...OK
-##    ResultValueType ...OK
-##    ResultDetectionQuantitationLimitType ...OK
-##    ResultUnit ...OK
-##    ActivityStartTimeZone ...OK
-## Checking results for invalid methods...OK
-## 
-## Validation Complete (OK)</code></pre>
+<pre><code>#&gt; Checking results for missing columns...OK
+#&gt; Checking results for columns with missing values...OK
+#&gt; Checking results have units when value is not empty...OK
+#&gt; Checking results have detection condition when value is empty...OK
+#&gt; Checking results against WQX domain values
+#&gt;    ActivityType ...OK
+#&gt;    ActivityMediaName ...OK
+#&gt;    SampleCollectionEquipmentName ...OK
+#&gt;    CharacteristicName ...OK
+#&gt;    MethodSpeciation ...OK
+#&gt;    ResultMeasureQualifier ...OK
+#&gt;    ResultDetectionCondition ...OK
+#&gt;    ResultSampleFraction ...OK
+#&gt;    ResultStatusID ...OK
+#&gt;    ResultValueType ...OK
+#&gt;    ResultDetectionQuantitationLimitType ...OK
+#&gt;    ResultUnit ...OK
+#&gt;    ActivityStartTimeZone ...OK
+#&gt; Checking results for invalid methods...OK
+#&gt; 
+#&gt; Validation Complete (OK)</code></pre>
 <p>If any errors occur, they will be reported as a <code>Warning</code>, and the message <code>Validation Failed</code> will be shown at the end. Let’s set an invalid value to one of the columns and re-run the validation to see what an error looks like.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">results_invalid &lt;-<span class="st"> </span>results
 results_invalid[<span class="dv">1</span>, <span class="st">&quot;CharacteristicName&quot;</span>] &lt;-<span class="st"> &quot;Moose&quot;</span>
 <span class="kw">wqx_validate_results</span>(results_invalid)</code></pre></div>
-<pre><code>## Checking results for missing columns...OK
-## Checking results for columns with missing values...OK
-## Checking results have units when value is not empty...OK
-## Checking results have detection condition when value is empty...OK
-## Checking results against WQX domain values
-##    ActivityType ...OK
-##    ActivityMediaName ...OK
-##    SampleCollectionEquipmentName ...OK
-##    CharacteristicName ...FAIL</code></pre>
-<pre><code>## Warning in wqx_validate_results(results_invalid): Invalid value(s) in
-## results column CharacteristicName: &quot;Moose&quot;</code></pre>
-<pre><code>##    MethodSpeciation ...OK
-##    ResultMeasureQualifier ...OK
-##    ResultDetectionCondition ...OK
-##    ResultSampleFraction ...OK
-##    ResultStatusID ...OK
-##    ResultValueType ...OK
-##    ResultDetectionQuantitationLimitType ...OK
-##    ResultUnit ...OK
-##    ActivityStartTimeZone ...OK
-## Checking results for invalid methods...OK
-## 
-## Validation Failed</code></pre>
+<pre><code>#&gt; Checking results for missing columns...OK
+#&gt; Checking results for columns with missing values...OK
+#&gt; Checking results have units when value is not empty...OK
+#&gt; Checking results have detection condition when value is empty...OK
+#&gt; Checking results against WQX domain values
+#&gt;    ActivityType ...OK
+#&gt;    ActivityMediaName ...OK
+#&gt;    SampleCollectionEquipmentName ...OK
+#&gt;    CharacteristicName ...FAIL</code></pre>
+<pre><code>#&gt; Warning in wqx_validate_results(results_invalid): Invalid value(s) in
+#&gt; results column CharacteristicName: &quot;Moose&quot;</code></pre>
+<pre><code>#&gt;    MethodSpeciation ...OK
+#&gt;    ResultMeasureQualifier ...OK
+#&gt;    ResultDetectionCondition ...OK
+#&gt;    ResultSampleFraction ...OK
+#&gt;    ResultStatusID ...OK
+#&gt;    ResultValueType ...OK
+#&gt;    ResultDetectionQuantitationLimitType ...OK
+#&gt;    ResultUnit ...OK
+#&gt;    ActivityStartTimeZone ...OK
+#&gt; Checking results for invalid methods...OK
+#&gt; 
+#&gt; Validation Failed</code></pre>
 <p>The valid results table can be saved to a csv file and then imported to WQX (note that the <code>na=&quot;&quot;</code> is important, otherwise R will insert “NA” into the file, which WQX will not accept):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(results, <span class="dt">file=</span><span class="st">'results.csv'</span>, <span class="dt">na=</span><span class="st">&quot;&quot;</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
 </div>
@@ -187,26 +187,26 @@ results_invalid[<span class="dv">1</span>, <span class="st">&quot;Characteristic
 <p>The WQX Locations Table is generated using the <code>wqx_locations()</code> function, which also requires the database channel (<code>ch</code>) and a list of location IDs (<code>locations</code>). The location IDs can be extracted using the <code>unique()</code> function on the <code>MonitoringLocationID</code> column of the <code>results</code> data frame.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">locations &lt;-<span class="st"> </span><span class="kw">wqx_locations</span>(ch, <span class="dt">locations=</span><span class="kw">unique</span>(results$MonitoringLocationID))
 <span class="kw">str</span>(locations)</code></pre></div>
-<pre><code>## 'data.frame':    16 obs. of  9 variables:
-##  $ MonitoringLocationID                                 : chr  &quot;ABR006&quot; &quot;ABR028&quot; &quot;ABR049&quot; &quot;ALB006&quot; ...
-##  $ MonitoringLocationName                               : chr  &quot;Aberjona River at USGS Gaging Station in Winchester; the bank upstream of weir&quot; &quot;Aberjona River at Washington Street in Winchester; upstream side of the bridge &quot; &quot;Aberjona River at Salem Street in Woburn; downstream side of the bridge&quot; &quot;Alewife Brook at Broadway Bridge in Somerville; downstream of the bridge on the bank&quot; ...
-##  $ MonitoringLocationType                               : chr  &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; ...
-##  $ MonitoringLocationLatitude                           : num  42.4 42.5 42.5 42.4 42.4 ...
-##  $ MonitoringLocationLongitude                          : num  -71.1 -71.1 -71.1 -71.1 -71 ...
-##  $ MonitoringLocationHorizontalCollectionMethod         : chr  &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; ...
-##  $ MonitoringLocationHorizontalCoordinateReferenceSystem: chr  &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; ...
-##  $ MonitoringLocationCountyCode                         : chr  &quot;017&quot; &quot;017&quot; &quot;017&quot; &quot;017&quot; ...
-##  $ MonitoringLocationState                              : chr  &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; ...</code></pre>
+<pre><code>#&gt; 'data.frame':    16 obs. of  9 variables:
+#&gt;  $ MonitoringLocationID                                 : chr  &quot;ABR006&quot; &quot;ABR028&quot; &quot;ABR049&quot; &quot;ALB006&quot; ...
+#&gt;  $ MonitoringLocationName                               : chr  &quot;Aberjona River at USGS Gaging Station in Winchester; the bank upstream of weir&quot; &quot;Aberjona River at Washington Street in Winchester; upstream side of the bridge &quot; &quot;Aberjona River at Salem Street in Woburn; downstream side of the bridge&quot; &quot;Alewife Brook at Broadway Bridge in Somerville; downstream of the bridge on the bank&quot; ...
+#&gt;  $ MonitoringLocationType                               : chr  &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; &quot;River/Stream&quot; ...
+#&gt;  $ MonitoringLocationLatitude                           : num  42.4 42.5 42.5 42.4 42.4 ...
+#&gt;  $ MonitoringLocationLongitude                          : num  -71.1 -71.1 -71.1 -71.1 -71 ...
+#&gt;  $ MonitoringLocationHorizontalCollectionMethod         : chr  &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; &quot;GPS-Unspecified&quot; ...
+#&gt;  $ MonitoringLocationHorizontalCoordinateReferenceSystem: chr  &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; &quot;WGS84&quot; ...
+#&gt;  $ MonitoringLocationCountyCode                         : chr  &quot;017&quot; &quot;017&quot; &quot;017&quot; &quot;017&quot; ...
+#&gt;  $ MonitoringLocationState                              : chr  &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; &quot;MA&quot; ...</code></pre>
 <p>The locations table can be validated using <code>wqx_validate_locations()</code>, which works similarly to <code>wqx_validate_results()</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">wqx_validate_locations</span>(locations)</code></pre></div>
-<pre><code>## Checking locations for missing columns...OK
-## Checking locations for columns with missing values...OK
-## Checking locations against WQX domain values
-##    MonitoringLocationType ...OK
-##    MonitoringLocationHorizontalCollectionMethod ...OK
-##    MonitoringLocationHorizontalCoordinateReferenceSystem ...OK
-## 
-## Validation Complete (OK)</code></pre>
+<pre><code>#&gt; Checking locations for missing columns...OK
+#&gt; Checking locations for columns with missing values...OK
+#&gt; Checking locations against WQX domain values
+#&gt;    MonitoringLocationType ...OK
+#&gt;    MonitoringLocationHorizontalCollectionMethod ...OK
+#&gt;    MonitoringLocationHorizontalCoordinateReferenceSystem ...OK
+#&gt; 
+#&gt; Validation Complete (OK)</code></pre>
 <p>The locations table can then be saved to a csv file for importing to WQX (note again the <code>na=&quot;&quot;</code> argument):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.csv</span>(locations, <span class="dt">file=</span><span class="st">'locations.csv'</span>, <span class="dt">na=</span><span class="st">&quot;&quot;</span>, <span class="dt">row.names=</span><span class="ot">FALSE</span>)</code></pre></div>
 </div>
