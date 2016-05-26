@@ -3,13 +3,14 @@
 #' Opens a connection to the MyRWA WQ database
 #'
 #' @param path Path to database
-#' @importFrom RODBC odbcConnectAccess2007
 #' @export
 #' @return RODBC connection handle
 #' @examples
 #' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 db_connect <- function(path) {
-  ch <- odbcConnectAccess2007(path)
+  if (odbcConnectAccess2007_exists()) {
+    ch <- RODBC::odbcConnectAccess2007(path)
+  }
   ch
 }
 
@@ -50,14 +51,15 @@ db_results <- function(ch, ...) {
 #' @param ch Connection handle to database
 #' @param table_name Table name
 #' @param ... Additional arguments passed to sqlFetch()
-#' @importFrom RODBC sqlFetch
 #' @return A dataframe containing the database table
 #' @export
 #' @examples
 #' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' tbl.Results <- db_table(ch, "Results")
 db_table <- function(ch, table_name, ...) {
-  df <- sqlFetch(ch, table_name, ...)
+  if (odbcConnectAccess2007_exists()) {
+    df <- sqlFetch(ch, table_name, ...)
+  }
   df
 }
 
@@ -66,14 +68,15 @@ db_table <- function(ch, table_name, ...) {
 #' Retrieves a character vector of table names
 #'
 #' @param ch Connection handle to database
-#' @importFrom RODBC sqlTables
 #' @return A character vector of table names
 #' @export
 #' @examples
 #' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' table_names <- db_list_tables(ch)
 db_list_tables <- function(ch) {
-  tables <- sqlTables(ch, tableType="TABLE")$TABLE_NAME
+  if (odbcConnectAccess2007_exists()) {
+    tables <- sqlTables(ch, tableType="TABLE")$TABLE_NAME
+  }
   tables
 }
 
@@ -82,7 +85,6 @@ db_list_tables <- function(ch) {
 #' Retrieves the field names and types from a given database table
 #'
 #' @param ch Connection handle to database
-#' @importFrom RODBC sqlColumns
 #' @return A dataframe containing the column names and types for the specified
 #'   table
 #' @export
@@ -90,7 +92,9 @@ db_list_tables <- function(ch) {
 #' ch <- db_connect("D:/Dropbox/Work/mystic/db/MysticDB_20160208.accdb")
 #' schema_results <- db_table_fields(ch, table_name = "Results")
 db_table_fields <- function(ch, table_name) {
-  fields <- sqlColumns(ch, table_name)[, c("COLUMN_NAME", "TYPE_NAME")]
+  if (odbcConnectAccess2007_exists()) {
+    fields <- sqlColumns(ch, table_name)[, c("COLUMN_NAME", "TYPE_NAME")]
+  }
   fields
 }
 
@@ -159,4 +163,14 @@ load_wq <- function(path, projects=NULL, sample_types="S",
   close(ch)
 
   wq
+}
+
+odbcConnectAccess2007_exists <- function () {
+  if (!require("RODBC")) {
+    stop("RODBC is not installed")
+  }
+  if (!exists('odbcConnectAccess2007', where='package:RODBC', mode='function')) {
+    stop("RODBC::odbcConnectAccess2007() is not available. This feature is only available on Windows-based systems.")
+  }
+  TRUE
 }
