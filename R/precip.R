@@ -10,7 +10,7 @@
 #' @param value.name Name of precipitation column (default="Precip")
 #' @param as.type Return type as 'dataframe' (default) or 'zoo'
 #' @importFrom readxl read_excel
-#' @importFrom lubridate ymd_hms round_date
+#' @importFrom lubridate ymd_hms round_date with_tz
 #' @importFrom zoo zoo
 #' @export
 #' @return dataframe or zoo object of hourly precipitation values
@@ -34,7 +34,11 @@ load_precip_from_xls <- function(path, sheet.name="Processed precipitation",
   x <- x[complete.cases(x), ]
 
   # parse datetimes and round to nearest minute
-  x[[datetime.name]] <- ymd_hms(x[[datetime.name]], tz = tz)
+  if ("character" %in% class(x[[datetime.name]])) {
+    x[[datetime.name]] <- ymd_hms(x[[datetime.name]], tz = tz)
+  } else {
+    x[[datetime.name]] <- with_tz(x[[datetime.name]], tz = tz)
+  }
   x[[datetime.name]] <- round_date(x[[datetime.name]], unit="minute")
 
   # check regular
